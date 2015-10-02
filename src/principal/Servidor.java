@@ -9,6 +9,7 @@ import envio_recepcion.Comunicacion;
 import envio_recepcion.Observer;
 import envio_recepcion.Subject;
 import gestionBD.GestionContactos;
+import gestionBD.GestionGrupos;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -73,6 +74,7 @@ public class Servidor implements Observer
                 + " `nombre` varchar(45) NOT NULL,"
                 + " `aliasPropietario` varchar(45) NOT NULL,"
                 + " PRIMARY KEY (`id`),"
+                + " UNIQUE `nombre_alias` (`nombre`, `aliasPropietario`),"
                 + " KEY `pertenece` (`aliasPropietario`),"
                 + " CONSTRAINT `pertenece` FOREIGN KEY (`aliasPropietario`)"
                 + " REFERENCES `usuario` (`alias`)"
@@ -222,6 +224,14 @@ public class Servidor implements Observer
                     case CodigoMetodo.MODIFICAR_CONTACTO:
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionContactos.modificarContacto(com.getContacto()));
+                        break;
+                    case CodigoMetodo.LISTAR_GRUPOS:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupos.listarGrupos(com.getGroupOwnerNick()));
+                        break;
+                    case CodigoMetodo.INSERTAR_GRUPO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupos.insertarGrupo(com.getGrupo()));
                         break;
                     default:
                         break;

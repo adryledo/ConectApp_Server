@@ -127,6 +127,12 @@ public class GestionContactos
         
     }
     
+    /**
+     * Busca los contactos del usuario dado
+     * @param groupOwnerNick Usuario del que se requieren sus contactos
+     * @return ArrayList de los contactos que creó groupOwnerNick<br>
+     *      <i>null</i> si hubo un error
+     */
     public static ArrayList<Contacto> listarContactos(String groupOwnerNick)
     {
         try
@@ -134,7 +140,7 @@ public class GestionContactos
             ArrayList<Contacto> resultado = new ArrayList();
             Statement stmt = Conexion.getConexion().createStatement();
             //String consulta= "select * from contacto order by aliasContacto";
-            String consulta = "SELECT * FROM contacto where idGrupo like (select id from grupo where aliasPropietario like '"+groupOwnerNick+"')";
+            String consulta = "SELECT * FROM contacto where idGrupo in (select id from grupo where aliasPropietario like '"+groupOwnerNick+"')";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
             while(rs.next())

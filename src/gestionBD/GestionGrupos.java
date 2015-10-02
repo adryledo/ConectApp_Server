@@ -15,7 +15,15 @@ import utilidadesBD.Conexion;
  *
  * @author CURSO 1314
  */
-public class GestionGrupos {
+public class GestionGrupos
+{
+    /**
+     * 
+     * @param g Grupo a insertar
+     * @return -1 si hay alg&uacute;n error<br>
+     *      -2 si no existe ningún usuario con ese alias<br>
+     *      0 si se pudo insertar
+     */
     public static int insertarGrupo(Grupo g)
     {
         if(!GestionUsuarios.existeUsuario(g.getAliasPropietario()))
@@ -81,7 +89,7 @@ public class GestionGrupos {
     {
         try
         {
-            ArrayList<Grupo> resultado = new ArrayList();
+            ArrayList<Grupo> resultado = new ArrayList<>();
             Statement stmt = Conexion.getConexion().createStatement();
             String consulta= "select * from grupo order by nombre";
             System.out.println(consulta);
@@ -100,6 +108,12 @@ public class GestionGrupos {
         }
     }
     
+    /**
+     * 
+     * @param aliasPropietario Nick del propietario de los grupos
+     * @return Array con los grupos que pertenecen al alias<br>
+     *      <i>null</i> si falla
+     */
     public static ArrayList<Grupo> listarGrupos(String aliasPropietario)
     {
         try
@@ -107,7 +121,7 @@ public class GestionGrupos {
             ArrayList<Grupo> resultado = new ArrayList();
             Statement stmt = Conexion.getConexion().createStatement();
             String consulta= "select * from grupo "
-                    + "where aliasPropietario="+aliasPropietario+" order by nombre";
+                    + "where aliasPropietario='"+aliasPropietario+"' order by nombre";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
             while(rs.next())

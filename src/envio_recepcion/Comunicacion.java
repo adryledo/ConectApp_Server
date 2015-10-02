@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import clases.Contacto;
+import clases.Grupo;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
@@ -32,6 +33,7 @@ public class Comunicacion extends Subject implements Runnable{
     private Contacto contacto;
     private ObjectOutputStream objFlujoS;
     private String groupOwnerNick;
+    private Grupo grupo;
 
     public Comunicacion(Socket s)
     {
@@ -44,6 +46,10 @@ public class Comunicacion extends Subject implements Runnable{
         } catch (IOException ex) {
             Logger.getLogger(Comunicacion.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public Grupo getGrupo() {
+        return grupo;
     }
 
     public String getGroupOwnerNick() {
@@ -118,12 +124,18 @@ public class Comunicacion extends Subject implements Runnable{
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.INSERTAR_GRUPO:
+                        this.grupo = (Grupo) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
                     case CodigoMetodo.LISTAR_CONTACTOS:
                         this.groupOwnerNick = (String) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
                     case CodigoMetodo.LISTAR_GRUPOS:
+                        this.groupOwnerNick = (String) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
                     case CodigoMetodo.MODIFICAR_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
                         this.notifyObservers();
