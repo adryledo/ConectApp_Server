@@ -18,7 +18,17 @@ import java.util.logging.Logger;
  *
  * @author ADRIANLC
  */
-public class GestionContactos {
+public class GestionContactos
+{
+    /**
+     * Guarda el contacto en la tabla contactos<br>
+     * @param c El contacto a insertar
+     * @return 0 Si se pudo insertar<br>
+     *      -1 Si hubo un error
+     *      -2 Si el contacto ya existe
+     *      -3 Si es el propietario del grupo en el que se quiere insertar
+     *      -4 Si el nick del contacto es un usuario que no existe
+     */
     public static int insertarContacto(Contacto c)
     {
         if(existeContacto(c.getIdGrupo(), c.getAliasContacto()))
@@ -59,13 +69,18 @@ public class GestionContactos {
         
     }
 
+    /**
+     * Elimina un contacto de la tabla contactos
+     * @param c El contacto a eliminar
+     * @return 0 si se pudo eliminar
+     */
     public static int eliminarContacto(Contacto c)
     {
         try
         {
             Statement stmt=Conexion.getConexion().createStatement();
             String consulta= "delete from contacto where idGrupo="+c.getIdGrupo()
-                    +" AND aliasContacto="+c.getAliasContacto();
+                    +" AND aliasContacto='"+c.getAliasContacto()+"'";
             System.out.println(consulta);
             stmt.executeUpdate(consulta);            
             return 0;
@@ -82,6 +97,11 @@ public class GestionContactos {
         
     }
     
+    /**
+     * Modifica un contacto
+     * @param c Contacto a modificar
+     * @return 0 Si se pudo modificar
+     */
     public static int modificarContacto(Contacto c)
     {
         try
@@ -107,13 +127,14 @@ public class GestionContactos {
         
     }
     
-    public static ArrayList<Contacto> listarContactos()
+    public static ArrayList<Contacto> listarContactos(String groupOwnerNick)
     {
         try
         {
             ArrayList<Contacto> resultado = new ArrayList();
             Statement stmt = Conexion.getConexion().createStatement();
-            String consulta= "select * from contacto order by aliasContacto";
+            //String consulta= "select * from contacto order by aliasContacto";
+            String consulta = "SELECT * FROM contacto where idGrupo like (select id from grupo where aliasPropietario like '"+groupOwnerNick+"')";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
             while(rs.next())

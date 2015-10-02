@@ -31,6 +31,7 @@ public class Comunicacion extends Subject implements Runnable{
     private int resultado;
     private Contacto contacto;
     private ObjectOutputStream objFlujoS;
+    private String groupOwnerNick;
 
     public Comunicacion(Socket s)
     {
@@ -43,6 +44,10 @@ public class Comunicacion extends Subject implements Runnable{
         } catch (IOException ex) {
             Logger.getLogger(Comunicacion.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public String getGroupOwnerNick() {
+        return groupOwnerNick;
     }
 
     public ObjectOutputStream getObjFlujoS() {
@@ -104,6 +109,9 @@ public class Comunicacion extends Subject implements Runnable{
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.ELIMINAR_CONTACTO:
+                        this.contacto = (Contacto) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
                     case CodigoMetodo.ELIMINAR_GRUPO:
                     case CodigoMetodo.INSERTAR_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
@@ -111,11 +119,15 @@ public class Comunicacion extends Subject implements Runnable{
                         break;
                     case CodigoMetodo.INSERTAR_GRUPO:
                     case CodigoMetodo.LISTAR_CONTACTOS:
+                        this.groupOwnerNick = (String) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
                     case CodigoMetodo.LISTAR_GRUPOS:
                     case CodigoMetodo.MODIFICAR_CONTACTO:
+                        this.contacto = (Contacto) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
                     case CodigoMetodo.MOSTRAR_MENSAJES:
                     case CodigoMetodo.RECUPERAR_CONTACTO:
                         /*System.out.println("Comunicacion: Código de método leído de flujo");

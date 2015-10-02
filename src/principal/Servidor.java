@@ -209,11 +209,19 @@ public class Servidor implements Observer
                         break;
                     case CodigoMetodo.LISTAR_CONTACTOS:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionContactos.listarContactos());
+                        objFlujoS.writeObject(GestionContactos.listarContactos(com.getGroupOwnerNick()));
                         break;
                     case CodigoMetodo.INSERTAR_CONTACTO:
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionContactos.insertarContacto(com.getContacto()));
+                        break;
+                    case CodigoMetodo.ELIMINAR_CONTACTO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionContactos.eliminarContacto(com.getContacto()));
+                        break;
+                    case CodigoMetodo.MODIFICAR_CONTACTO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionContactos.modificarContacto(com.getContacto()));
                         break;
                     default:
                         break;
