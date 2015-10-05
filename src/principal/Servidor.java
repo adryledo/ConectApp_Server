@@ -223,7 +223,7 @@ public class Servidor implements Observer
                         break;
                     case CodigoMetodo.MODIFICAR_CONTACTO:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionContactos.modificarContacto(com.getContacto()));
+                        objFlujoS.writeObject(GestionContactos.modificarContacto(com.getContacto(), com.getIdGrupo()));
                         break;
                     case CodigoMetodo.LISTAR_GRUPOS:
                         objFlujoS.writeObject(com.getCodigo());
@@ -232,6 +232,23 @@ public class Servidor implements Observer
                     case CodigoMetodo.INSERTAR_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionGrupos.insertarGrupo(com.getGrupo()));
+                        break;
+                    case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionContactos.listarContactosGrupo(com.getIdGrupo()));
+                        break;
+                    case CodigoMetodo.ELIMINAR_GRUPO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        int resultado;
+                        if((resultado=GestionContactos.eliminarContactosGrupo(com.getGrupo())) == 0)
+                        {
+                            resultado = GestionGrupos.eliminarGrupo(com.getGrupo());
+                        }
+                        objFlujoS.writeObject(resultado);
+                        break;
+                    case CodigoMetodo.MODIFICAR_GRUPO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupos.modificarGrupo(com.getGrupo()));
                         break;
                     default:
                         break;

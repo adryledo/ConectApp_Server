@@ -10,6 +10,7 @@ import java.sql.Statement;
 import utilidadesBD.Conexion;
 
 import clases.Contacto;
+import clases.Grupo;
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -94,28 +95,29 @@ public class GestionContactos
             }
             return -1; //error generico
         }
-        
     }
     
     /**
      * Modifica un contacto
      * @param c Contacto a modificar
+     * @param idGrupoActual id del grupo en que se encuentra el Contacto antes de ser modificado
      * @return 0 Si se pudo modificar
      */
-    public static int modificarContacto(Contacto c)
+    public static int modificarContacto(Contacto c, int idGrupoActual)
     {
         try
         {
-            String consulta = "update contacto set nombre=?, telefono=?, direccion=?, email=? where idGrupo=? AND aliasContacto=?";
+            String consulta = "update contacto set idGrupo=?, nombre=?, telefono=?, direccion=?, email=? where idGrupo=? AND aliasContacto=?";
             PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
-            stmt.setString(1, c.getNombre());
-            stmt.setString(2, c.getTelefono());
-            stmt.setString(3, c.getDireccion());
-            stmt.setString(4, c.getEmail());
-            stmt.setInt(5, c.getIdGrupo());
-            stmt.setString(6, c.getAliasContacto());
+            stmt.setInt(1, c.getIdGrupo());
+            stmt.setString(2, c.getNombre());
+            stmt.setString(3, c.getTelefono());
+            stmt.setString(4, c.getDireccion());
+            stmt.setString(5, c.getEmail());
+            stmt.setInt(6, idGrupoActual);
+            stmt.setString(7, c.getAliasContacto());
             
-            System.out.println(consulta);
+            System.out.println(stmt.toString());
             stmt.executeUpdate();            
             return 0;
         }
@@ -233,6 +235,26 @@ public class GestionContactos
             Logger.getLogger(GestionContactos.class.getName()).log(Level.SEVERE, null, ex);
         }
         return true;
+    }
+
+    public static int eliminarContactosGrupo(Grupo grupo) {
+        try
+        {
+            Statement stmt=Conexion.getConexion().createStatement();
+            String consulta= "delete from contacto where idGrupo="+grupo.getId();
+            System.out.println(consulta);
+            stmt.executeUpdate(consulta);            
+            return 0;
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+            if(e.getErrorCode()==1451)
+            {
+                return -2; //error por integridad referencial
+            }
+            return -1; //error generico
+        }
     }
 }
 

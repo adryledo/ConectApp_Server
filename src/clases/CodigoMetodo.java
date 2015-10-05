@@ -20,6 +20,7 @@ public class CodigoMetodo
     public static final int LISTAR_GRUPOS = 20;
     public static final int INSERTAR_GRUPO = 22;
     public static final int ELIMINAR_GRUPO = 24;
+    public static final int MODIFICAR_GRUPO = 25;
     
     public static final int INICIAR_SESION = 30;
     public static final int REGISTRARSE = 31;

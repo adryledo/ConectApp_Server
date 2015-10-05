@@ -34,6 +34,7 @@ public class Comunicacion extends Subject implements Runnable{
     private ObjectOutputStream objFlujoS;
     private String groupOwnerNick;
     private Grupo grupo;
+    private int idGrupo;
 
     public Comunicacion(Socket s)
     {
@@ -46,6 +47,10 @@ public class Comunicacion extends Subject implements Runnable{
         } catch (IOException ex) {
             Logger.getLogger(Comunicacion.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public int getIdGrupo() {
+        return idGrupo;
     }
 
     public Grupo getGrupo() {
@@ -119,6 +124,9 @@ public class Comunicacion extends Subject implements Runnable{
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.ELIMINAR_GRUPO:
+                        this.grupo = (Grupo) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
                     case CodigoMetodo.INSERTAR_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
                         this.notifyObservers();
@@ -132,12 +140,16 @@ public class Comunicacion extends Subject implements Runnable{
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
+                        this.idGrupo = (int) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
                     case CodigoMetodo.LISTAR_GRUPOS:
                         this.groupOwnerNick = (String) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.MODIFICAR_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
+                        this.idGrupo = (int) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.MOSTRAR_MENSAJES:
@@ -147,6 +159,10 @@ public class Comunicacion extends Subject implements Runnable{
                         System.out.println("Comunicacion: Objeto leído de flujo");
                         IP = (String)objFlujoE.readObject();           
                         System.out.println("Comunicacion: IP leída de flujo");*/
+                        break;
+                    case CodigoMetodo.MODIFICAR_GRUPO:
+                        this.grupo = (Grupo) objFlujoE.readObject();
+                        this.notifyObservers();
                         break;
                     default:
                         break;

@@ -50,6 +50,12 @@ public class GestionGrupos
         
     }
 
+    /**
+     * 
+     * @param g Grupo a eliminar
+     * @return 0 Si se pudo eliminar<br>
+     *      -1 Si falla
+     */
     public static int eliminarGrupo(Grupo g)
     {
         try
@@ -67,23 +73,29 @@ public class GestionGrupos
         }
     }
     
-//    public static int modificarPersona(Persona p)
-//    {
-//        try
-//        {
-//            Statement stmt=Conexion.getConexion().createStatement();
-//            String consulta= "update personas set nombre='"+p.getNombre()+"',edad="+p.getEdad()+",cod_ciudad="+p.getCodCiudad()+" where cod_persona="+p.getCodPersona();
-//            System.out.println(consulta);
-//            stmt.executeUpdate(consulta);            
-//            return 0;
-//        }
-//        catch(SQLException e)
-//        {
-//            e.printStackTrace();
-//            return -1; //error generico
-//        }
-//        
-//    }
+    /**
+     * Modifica el nombre del grupo
+     * @param g Grupo con el nombre nuevo
+     * @return 0 si todo fue bien<br>
+     *      -1 si no se pudo modificar
+     */
+    public static int modificarGrupo(Grupo g)
+    {
+        try
+        {
+            Statement stmt=Conexion.getConexion().createStatement();
+            String consulta= "update grupo set nombre='"+g.getNombre()+"' where id="+g.getId();
+            System.out.println(stmt.toString());
+            stmt.executeUpdate(consulta);            
+            return 0;
+        }
+        catch(SQLException e)
+        {
+            e.printStackTrace();
+            return -1; //error generico
+        }
+        
+    }
     
     public static ArrayList<Grupo> listarGrupos()
     {
