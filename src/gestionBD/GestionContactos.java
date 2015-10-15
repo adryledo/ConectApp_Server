@@ -25,22 +25,23 @@ public class GestionContactos
      * Guarda el contacto en la tabla contactos<br>
      * @param c El contacto a insertar
      * @return 0 Si se pudo insertar<br>
-     *      -1 Si hubo un error
-     *      -2 Si el contacto ya existe
-     *      -3 Si es el propietario del grupo en el que se quiere insertar
+     *      -1 Si hubo un error<br>
+     *      -2 Si el contacto ya existe<br>
+     *      -3 Si es el propietario del grupo en el que se quiere insertar<br>
      *      -4 Si el nick del contacto es un usuario que no existe
      */
     public static int insertarContacto(Contacto c)
     {
-        if(existeContacto(c.getIdGrupo(), c.getAliasContacto()))
+        //if(existeContacto(c.getCreador(), c.getAlias()))
+        if(existeContacto(c))
         {
             return -2;
         }
-        if(esPropietario(c.getIdGrupo(), c.getAliasContacto()))
+        /*if(esPropietario(c.getCreador(), c.getAlias()))
         {
             return -3;
-        }
-        if(!GestionUsuarios.existeUsuario(c.getAliasContacto()))
+        }*/
+        if(!GestionUsuarios.existeUsuario(c.getAlias()))
         {
             return -4;
         }
@@ -48,17 +49,17 @@ public class GestionContactos
         try
         {
             String consulta = "insert into contacto "
-                    + "(idGrupo, aliasContacto, nombre, telefono, direccion, email) VALUES (?,?,?,?,?,?)";
+                    + "(creador, alias, nombre, telefono, direccion, email) VALUES (?,?,?,?,?,?)";
             
             PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
-            stmt.setInt(1, c.getIdGrupo());
-            stmt.setString(2, c.getAliasContacto());
+            stmt.setString(1, c.getCreador());
+            stmt.setString(2, c.getAlias());
             stmt.setString(3, c.getNombre());
             stmt.setString(4, c.getTelefono());
             stmt.setString(5, c.getDireccion());
             stmt.setString(6, c.getEmail());
             
-            System.out.println(consulta);
+            System.out.println(stmt.toString());
             stmt.executeUpdate();
             return 0;
         }
@@ -79,12 +80,18 @@ public class GestionContactos
     {
         try
         {
-            Statement stmt=Conexion.getConexion().createStatement();
-            String consulta= "delete from contacto where idGrupo="+c.getIdGrupo()
-                    +" AND aliasContacto='"+c.getAliasContacto()+"'";
+        /*    Statement stmt=Conexion.getConexion().createStatement();
+            String consulta= "delete from contacto where creador='"+c.getCreador()
+                    +"' AND alias='"+c.getAlias()+"'";
             System.out.println(consulta);
             stmt.executeUpdate(consulta);            
-            return 0;
+            return 0;*/
+            String consulta= "delete from contacto where creador=? AND alias=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, c.getCreador());
+            stmt.setString(2, c.getAlias());
+            System.out.println(stmt.toString());
+            return (stmt.executeUpdate()==1 ? 0 : -3);
         }
         catch(SQLException e)
         {
@@ -100,26 +107,23 @@ public class GestionContactos
     /**
      * Modifica un contacto
      * @param c Contacto a modificar
-     * @param idGrupoActual id del grupo en que se encuentra el Contacto antes de ser modificado
      * @return 0 Si se pudo modificar
      */
-    public static int modificarContacto(Contacto c, int idGrupoActual)
+    public static int modificarContacto(Contacto c)
     {
         try
         {
-            String consulta = "update contacto set idGrupo=?, nombre=?, telefono=?, direccion=?, email=? where idGrupo=? AND aliasContacto=?";
+            String consulta = "update contacto set nombre=?, telefono=?, direccion=?, email=? where creador=? AND alias=?";
             PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
-            stmt.setInt(1, c.getIdGrupo());
-            stmt.setString(2, c.getNombre());
-            stmt.setString(3, c.getTelefono());
-            stmt.setString(4, c.getDireccion());
-            stmt.setString(5, c.getEmail());
-            stmt.setInt(6, idGrupoActual);
-            stmt.setString(7, c.getAliasContacto());
+            stmt.setString(1, c.getNombre());
+            stmt.setString(2, c.getTelefono());
+            stmt.setString(3, c.getDireccion());
+            stmt.setString(4, c.getEmail());
+            stmt.setString(5, c.getCreador());
+            stmt.setString(7, c.getAlias());
             
             System.out.println(stmt.toString());
-            stmt.executeUpdate();            
-            return 0;
+            return (stmt.executeUpdate()==1 ? 0 : -2);
         }
         catch(SQLException e)
         {
@@ -131,25 +135,31 @@ public class GestionContactos
     
     /**
      * Busca los contactos del usuario dado
-     * @param groupOwnerNick Usuario del que se requieren sus contactos
-     * @return ArrayList de los contactos que creó groupOwnerNick<br>
+     * @param creador Usuario del que se requieren sus contactos
+     * @return ArrayList de los contactos que creó creador<br>
      *      <i>null</i> si hubo un error
      */
-    public static ArrayList<Contacto> listarContactos(String groupOwnerNick)
+    public static ArrayList<Contacto> listarContactos(String creador)
     {
         try
         {
             ArrayList<Contacto> resultado = new ArrayList();
-            Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = Conexion.getConexion().createStatement();
             //String consulta= "select * from contacto order by aliasContacto";
-            String consulta = "SELECT * FROM contacto where idGrupo in (select id from grupo where aliasPropietario like '"+groupOwnerNick+"')";
+            String consulta = "SELECT * FROM contacto where creador like  '"+creador+"')";
             System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);
+            ResultSet rs = stmt.executeQuery(consulta);*/
+            String consulta = "SELECT * FROM contacto where creador=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, creador);
+            stmt.execute();
+            ResultSet rs = stmt.getResultSet();
             while(rs.next())
             {
-                Contacto c = new Contacto(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
+                Contacto c = new Contacto(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
                 resultado.add(c);
             }
+            System.out.println(stmt.toString());
             return resultado;
         }
         catch(SQLException e)
@@ -159,7 +169,7 @@ public class GestionContactos
         }
     }
     
-    public static ArrayList<Contacto> listarContactosGrupo(int idGrupo)
+    /*public static ArrayList<Contacto> listarContactosGrupo(int idGrupo)
     {
         try
         {
@@ -180,7 +190,7 @@ public class GestionContactos
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
     
     /*public static Contacto recuperarContacto(String ip)
     {
@@ -204,19 +214,25 @@ public class GestionContactos
         }
     }*/
 
-    private static boolean existeContacto(int idGrupo, String aliasContacto) {
+    private static boolean existeContacto(Contacto c) {
         try
         {
-            Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = Conexion.getConexion().createStatement();
             String consulta= "select * from contacto "
-                    + "where idGrupo="+idGrupo+" AND aliasContacto=\""+aliasContacto+"\"";
+                    + "where creador='"+c.getCreador()+"' AND alias='"+c.getAlias()+"'";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
             if(rs.next())
             {
                 return true;
             }
-            return false;
+            return false;*/
+            String consulta= "select * from contacto where creador=? AND alias=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, c.getCreador());
+            stmt.setString(2, c.getAlias());
+            System.out.println(stmt.toString());
+            return stmt.executeQuery().next();
         }
         catch(SQLException e)
         {
@@ -224,7 +240,7 @@ public class GestionContactos
             return true;
         }
     }
-
+/*
     private static boolean esPropietario(int idGrupo, String aliasContacto) {
         try {
             Statement stmt = Conexion.getConexion().createStatement();
@@ -235,9 +251,9 @@ public class GestionContactos
             Logger.getLogger(GestionContactos.class.getName()).log(Level.SEVERE, null, ex);
         }
         return true;
-    }
+    }*/
 
-    public static int eliminarContactosGrupo(Grupo grupo) {
+/*    public static int eliminarContactosGrupo(Grupo grupo) {
         try
         {
             Statement stmt=Conexion.getConexion().createStatement();
@@ -255,7 +271,7 @@ public class GestionContactos
             }
             return -1; //error generico
         }
-    }
+    }*/
 }
 
 

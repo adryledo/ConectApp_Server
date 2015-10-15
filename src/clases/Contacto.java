@@ -12,32 +12,35 @@ import java.io.Serializable;
  */
 public class Contacto implements Serializable
 {
-    private String aliasContacto, nombre, telefono, direccion, email;
-    private int idGrupo;
+    private String creador, alias, nombre, telefono, direccion, email;
 
     public Contacto() {
     }
 
-    public Contacto(int idGrupo, String aliasContacto, String nombre, String telefono, String direccion, String email) {
-        this.aliasContacto = aliasContacto;
+    public Contacto(String creador, String alias, String nombre, String telefono, String direccion, String email) {
+        this.creador = creador;
+        this.alias = alias;
         this.nombre = nombre;
         this.telefono = telefono;
         this.direccion = direccion;
         this.email = email;
-        this.idGrupo = idGrupo;
     }
 
-    public void setAliasContacto(String aliasContacto) {
-        this.aliasContacto = aliasContacto;
+    public void setCreador(String creador) {
+        this.creador = creador;
     }
     
-    /*public Contacto(int id, String ip, String nombre, String telefono, String direccion, String email, int idGrupo) {
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+    
+    public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
-        this.direccion = direccion;
-        this.email = email;
-        this.idGrupo = idGrupo;
-    }*/
+    }
 
     public void setDireccion(String direccion) {
         this.direccion = direccion;
@@ -47,29 +50,21 @@ public class Contacto implements Serializable
         this.email = email;
     }
 
-    /*public void setId(int id) {
-        this.id = id;
-    }*/
-
-    public void setIdGrupo(int idGrupo) {
-        this.idGrupo = idGrupo;
+    public String getCreador() {
+        return creador;
     }
 
-    /*public void setIp(String ip) {
-        this.ip = ip;
-    }*/
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public String getAlias() {
+        return alias;
+    }
+    
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
+    public String getTelefono() {
+        return telefono;
     }
-
-    /*public int getId() {
-        return id;
-    }*/
 
     public String getDireccion() {
         return direccion;
@@ -79,26 +74,6 @@ public class Contacto implements Serializable
         return email;
     }
 
-    /*public String getIp() {
-        return ip;
-    }*/
-
-    public int getIdGrupo() {
-        return idGrupo;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public String getAliasContacto() {
-        return aliasContacto;
-    }
-    
     @Override
     public String toString() {
         return nombre;

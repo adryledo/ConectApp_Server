@@ -20,13 +20,18 @@ import utilidadesBD.Conexion;
  * @author adry
  */
 public class GestionUsuarios {
-
+    /**
+     * 
+     * @param aliasPropietario 
+     * @return true | false
+     */
     static boolean existeUsuario(String aliasPropietario) {
         try {
-            Statement stmt = Conexion.getConexion().createStatement();
-            String consulta = "select * from usuario where alias like '"+aliasPropietario+"'";
-            ResultSet rs = stmt.executeQuery(consulta);
-            return rs.next();
+            String consulta = "select * from usuario where alias=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, aliasPropietario);
+            System.out.println(stmt.toString());
+            return stmt.executeQuery().next();
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -42,15 +47,17 @@ public class GestionUsuarios {
     public static int iniciarSesion(Usuario usuario)
     {
         try {
-            Statement stmt = Conexion.getConexion().createStatement();
-            String consulta = "select * from usuario where alias like '"+usuario.getAlias()
-                    +"' AND contrasenha like '"+usuario.getContrasenha()+"'";
-            ResultSet rs = stmt.executeQuery(consulta);
-            return ((rs.next())?0:1);
+            String consulta = "update usuario set dispConectados=dispConectados+1 where"
+                    + " alias=? and contrasenha=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, usuario.getAlias());
+            stmt.setString(2, usuario.getContrasenha());
+            System.out.println(stmt.toString());
+            return stmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return 1;
+        return -1;
     }
     /**
      * 
@@ -63,20 +70,36 @@ public class GestionUsuarios {
     {
         if(existeUsuario(usuario.getAlias()))
         {
+            iniciarSesion(usuario);
             return -2;
         }
         
         try {
-            String consulta = "insert into usuario (alias, contrasenha) values (?,?)";
+            String consulta = "insert into usuario (alias, contrasenha, dispConectados) values (?,?,1)";
             PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
             stmt.setString(1, usuario.getAlias());
             stmt.setString(2, usuario.getContrasenha());
-            System.out.println(consulta);
+            System.out.println(stmt.toString());
             stmt.executeUpdate();
             return 0;
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
             return -1;
         }
+    }
+
+    public static int cerrarSesion(Usuario user) {
+        try {
+            String consulta = "update usuario set dispConectados=dispConectados-1 where"
+                    + " alias=?";// and contrasenha=?
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, user.getAlias());
+        //    stmt.setString(2, user.getContrasenha());
+            System.out.println(stmt.toString());
+            return stmt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return -1;
     }
 }

@@ -12,33 +12,18 @@ import java.io.Serializable;
  */
 public class Grupo implements Serializable
 {
-    private int id;
+    private String admin;
     private String nombre;
-    private String aliasPropietario;
 
     public Grupo(String nombre)
     {
         this.nombre = nombre;
     }
     
-    public Grupo(int id, String nombre)
+    public Grupo(String admin, String nombre)
     {
-        this.id = id;
+        this.admin = admin;
         this.nombre = nombre;
-    }
-    
-    public Grupo(int id, String nombre, String aliasPropietario) {
-        this.id = id;
-        this.aliasPropietario = aliasPropietario;
-        this.nombre = nombre;
-    }
-    
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getNombre() {
@@ -49,12 +34,12 @@ public class Grupo implements Serializable
         this.nombre = nombre;
     }
 
-    public String getAliasPropietario() {
-        return aliasPropietario;
+    public String getAdmin() {
+        return admin;
     }
 
-    public void setAliasPropietario(String aliasPropietario) {
-        this.aliasPropietario = aliasPropietario;
+    public void setAdmin(String admin) {
+        this.admin = admin;
     }
 
     @Override

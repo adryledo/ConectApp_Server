@@ -19,7 +19,12 @@ import utilidadesBD.Conexion;
  * @author ADRIANLC
  */
 public class GestionMensajes {
-
+    /**
+     * 
+     * @param m
+     * @return 0 si se pudo insertar<br>
+     *      -1 en caso de error
+     */
     public static int insertarMensaje(Mensaje m) {
         try
         {
@@ -28,10 +33,10 @@ public class GestionMensajes {
             PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
             stmt.setString(1, m.getAliasUsuario());
             stmt.setString(2, m.getAliasContacto());
-            stmt.setString(3, m.getFecha());
+            stmt.setTimestamp(3, m.getFecha());
             stmt.setString(4, m.getContenido());
             
-            System.out.println(consulta);
+            System.out.println(stmt.toString());
             stmt.executeUpdate();
             return 0;
         }

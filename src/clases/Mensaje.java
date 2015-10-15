@@ -5,7 +5,7 @@
 package clases;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  *
@@ -13,9 +13,10 @@ import java.util.Date;
  */
 public class Mensaje implements Serializable
 {
-    private String aliasUsuario, aliasContacto, contenido, fecha;
+    private String aliasUsuario, aliasContacto, contenido;
+    private Timestamp fecha;
 
-    public Mensaje(String aliasUsuario, String aliasContacto, String fecha, String contenido)
+    public Mensaje(String aliasUsuario, String aliasContacto, Timestamp fecha, String contenido)
     {
         this.aliasUsuario = aliasUsuario;
         this.aliasContacto = aliasContacto;
@@ -35,7 +36,7 @@ public class Mensaje implements Serializable
         return contenido;
     }
 
-    public String getFecha() {
+    public Timestamp getFecha() {
         return fecha;
     }
 }

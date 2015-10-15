@@ -1,25 +1,37 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2015 Adrián Ledo
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 package envio_recepcion;
 
 import clases.CodigoMetodo;
+import clases.Contacto;
+import clases.EnvioPrivado;
+import clases.Grupo;
+import clases.Mensaje;
 import clases.Usuario;
-import gestionBD.GestionConexiones;
 import gestionBD.GestionUsuarios;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import clases.Contacto;
-import clases.Grupo;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 
 /**
  *
@@ -29,12 +41,15 @@ public class Comunicacion extends Subject implements Runnable{
 
     private final Socket socket;
     private int codigo;
+    private Usuario user;
     private int resultado;
     private Contacto contacto;
     private ObjectOutputStream objFlujoS;
     private String groupOwnerNick;
     private Grupo grupo;
     private int idGrupo;
+    private EnvioPrivado envioPrivado;
+    private String nombreActual;
 
     public Comunicacion(Socket s)
     {
@@ -47,6 +62,18 @@ public class Comunicacion extends Subject implements Runnable{
         } catch (IOException ex) {
             Logger.getLogger(Comunicacion.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public String getNombreActual() {
+        return nombreActual;
+    }
+
+    public Usuario getUser() {
+        return user;
+    }
+
+    public EnvioPrivado getEnvioPrivado() {
+        return envioPrivado;
     }
 
     public int getIdGrupo() {
@@ -92,31 +119,31 @@ public class Comunicacion extends Subject implements Runnable{
             //http://codigoprogramacion.com/cursos/java/103-sockets-en-java-con-cliente-y-servidor.html#.VgEaod-qpBc
             flujoEntrada = socket.getInputStream();
             objFlujoE = new ObjectInputStream(flujoEntrada);
-            Usuario user = null;
+            
             while(socket.isConnected())
             {
                 switch(codigo = (Integer)objFlujoE.readObject())
                 {
                     case CodigoMetodo.REGISTRARSE:
                         System.out.println("Comunicacion: Codigo recibido");
-                        user = (Usuario)objFlujoE.readObject();
+                        this.user = (Usuario)objFlujoE.readObject();
                         System.out.println("Comunicacion: Usuario recibido");
-                        IP = (String)objFlujoE.readObject();           
-                        System.out.println("Comunicacion: IP leída de flujo");
-                        this.resultado = GestionUsuarios.registrarse(user);
-                        if(this.resultado == 0)
+                    /*    IP = (String)objFlujoE.readObject();           
+                        System.out.println("Comunicacion: IP leída de flujo");*/
+                        this.resultado = GestionUsuarios.registrarse(this.user);
+                    /*    if(this.resultado == 0)
                         {
-                            GestionConexiones.insertarConexion(new clases.Conexion(user.getAlias(), IP));
-                        }
+                            GestionConexiones.insertarConexion(new clases.Conexion(this.user.getAlias(), IP));
+                        }*/
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.INICIAR_SESION:
                         System.out.println("Comunicacion: Codigo recibido");
-                        user = (Usuario)objFlujoE.readObject();
+                        this.user = (Usuario)objFlujoE.readObject();
                         System.out.println("Comunicacion: Usuario recibido");
-                        IP = (String)objFlujoE.readObject();           
-                        System.out.println("Comunicacion: IP leída de flujo");
-                        this.resultado = GestionUsuarios.iniciarSesion(user);
+                    /*    IP = (String)objFlujoE.readObject();           
+                        System.out.println("Comunicacion: IP leída de flujo");*/
+                        this.resultado = GestionUsuarios.iniciarSesion(this.user);
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.ELIMINAR_CONTACTO:
@@ -149,10 +176,8 @@ public class Comunicacion extends Subject implements Runnable{
                         break;
                     case CodigoMetodo.MODIFICAR_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
-                        this.idGrupo = (int) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
-                    case CodigoMetodo.MOSTRAR_MENSAJES:
                     case CodigoMetodo.RECUPERAR_CONTACTO:
                         /*System.out.println("Comunicacion: Código de método leído de flujo");
                         objeto = objFlujoE.readObject();
@@ -162,6 +187,11 @@ public class Comunicacion extends Subject implements Runnable{
                         break;
                     case CodigoMetodo.MODIFICAR_GRUPO:
                         this.grupo = (Grupo) objFlujoE.readObject();
+                        this.nombreActual = (String) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.ENVIAR_MENSAJE_P:
+                        this.envioPrivado = (EnvioPrivado) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     default:
@@ -178,6 +208,7 @@ public class Comunicacion extends Subject implements Runnable{
             } catch (IOException e) {
                 Logger.getLogger(Comunicacion.class.getName()).log(Level.SEVERE, null, e);
             }*/
+            ex.printStackTrace();
             this.codigo = CodigoMetodo.DESCONECTARSE;
             this.notifyObservers();
         } catch (ClassNotFoundException ex) {

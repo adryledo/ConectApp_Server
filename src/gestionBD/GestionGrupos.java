@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import utilidadesBD.Conexion;
 /**
  *
- * @author CURSO 1314
+ * @author Adri&aacute;n Ledo
  */
 public class GestionGrupos
 {
@@ -26,19 +26,18 @@ public class GestionGrupos
      */
     public static int insertarGrupo(Grupo g)
     {
-        if(!GestionUsuarios.existeUsuario(g.getAliasPropietario()))
+        if(!GestionUsuarios.existeUsuario(g.getAdmin()))
         {
             return -2;
         }
         
         try
         {
-            String consulta= "insert into grupo (id, nombre, aliasPropietario) VALUES (?,?,?)";
+            String consulta= "insert into grupo (admin, nombre) VALUES (?,?)";
             PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
-            stmt.setInt(1, g.getId());
+            stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
-            stmt.setString(3, g.getAliasPropietario());
-            System.out.println(consulta);
+            System.out.println(stmt.toString());
             stmt.executeUpdate();            
             return 0;
         }
@@ -53,18 +52,26 @@ public class GestionGrupos
     /**
      * 
      * @param g Grupo a eliminar
-     * @return 0 Si se pudo eliminar<br>
-     *      -1 Si falla
+     * @return 0    Si se pudo eliminar<br>
+     *      -1  Si falla<br>
+     *      -2  Si eliminó más de uno o ninguno
      */
     public static int eliminarGrupo(Grupo g)
     {
         try
         {
-            Statement stmt=Conexion.getConexion().createStatement();
-            String consulta= "delete from grupo where id="+g.getId();
+        /*    Statement stmt=Conexion.getConexion().createStatement();
+            String consulta= "delete from grupo where admin='"+g.getAdmin()+"' and"
+                    + " nombre='"+g.getNombre()+"'";
             System.out.println(consulta);
-            stmt.executeUpdate(consulta);            
-            return 0;
+            stmt.executeUpdate(consulta);
+            return 0;*/
+            String consulta= "delete from grupo where admin=? and nombre=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, g.getAdmin());
+            stmt.setString(2, g.getNombre());
+            System.out.println(stmt.toString());
+            return (stmt.executeUpdate()==1 ? 0 : -2);
         }
         catch(SQLException e)
         {
@@ -76,18 +83,28 @@ public class GestionGrupos
     /**
      * Modifica el nombre del grupo
      * @param g Grupo con el nombre nuevo
-     * @return 0 si todo fue bien<br>
-     *      -1 si no se pudo modificar
+     * @param nombreActual nombre del grupo antes de modificarlo
+     * @return 0    si todo fue bien<br>
+     *      -1  si no se pudo modificar<br>
+     *      -2  si modifica más de uno o ninguno
      */
-    public static int modificarGrupo(Grupo g)
+    public static int modificarGrupo(Grupo g, String nombreActual)
     {
         try
         {
-            Statement stmt=Conexion.getConexion().createStatement();
-            String consulta= "update grupo set nombre='"+g.getNombre()+"' where id="+g.getId();
+        /*    Statement stmt=Conexion.getConexion().createStatement();
+            String consulta= "update grupo set nombre='"+g.getNombre()+"' where admin='"+g.getAdmin()
+                    + "' and nombre='"+nombreActual+"'";
+            stmt.executeUpdate(consulta);
             System.out.println(stmt.toString());
-            stmt.executeUpdate(consulta);            
-            return 0;
+            return 0;*/
+            String consulta= "update grupo set nombre=? where admin=? and nombre=?";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, g.getNombre());
+            stmt.setString(2, g.getAdmin());
+            stmt.setString(3, nombreActual);
+            System.out.println(stmt.toString());
+            return (stmt.executeUpdate()==1 ? 0 : -2);
         }
         catch(SQLException e)
         {
@@ -102,15 +119,26 @@ public class GestionGrupos
         try
         {
             ArrayList<Grupo> resultado = new ArrayList<>();
-            Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = Conexion.getConexion().createStatement();
             String consulta= "select * from grupo order by nombre";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
             while(rs.next())
             {
-                Grupo g = new Grupo(rs.getInt(1), rs.getString(2), rs.getString(3));
+                Grupo g = new Grupo(rs.getString(1), rs.getString(2));
                 resultado.add(g);
             }
+            return resultado;*/
+            String consulta= "select * from grupo order by nombre";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.execute();
+            ResultSet rs = stmt.getResultSet();
+            while(rs.next())
+            {
+                Grupo g = new Grupo(rs.getString(1), rs.getString(2));
+                resultado.add(g);
+            }
+            System.out.println(stmt.toString());
             return resultado;
         }
         catch(SQLException e)
@@ -122,25 +150,31 @@ public class GestionGrupos
     
     /**
      * 
-     * @param aliasPropietario Nick del propietario de los grupos
+     * @param admin Nick del propietario de los grupos
      * @return Array con los grupos que pertenecen al alias<br>
      *      <i>null</i> si falla
      */
-    public static ArrayList<Grupo> listarGrupos(String aliasPropietario)
+    public static ArrayList<Grupo> listarGrupos(String admin)
     {
         try
         {
             ArrayList<Grupo> resultado = new ArrayList();
-            Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = Conexion.getConexion().createStatement();
             String consulta= "select * from grupo "
-                    + "where aliasPropietario='"+aliasPropietario+"' order by nombre";
+                    + "where admin='"+admin+"' order by nombre";
             System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);
+            ResultSet rs = stmt.executeQuery(consulta);*/
+            String consulta = "select * from grupo where admin=? order by nombre";
+            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            stmt.setString(1, admin);
+            stmt.execute();
+            ResultSet rs = stmt.getResultSet();
             while(rs.next())
             {
-                Grupo g = new Grupo(rs.getInt(1), rs.getString(2), rs.getString(3));
+                Grupo g = new Grupo( rs.getString(1), rs.getString(2));
                 resultado.add(g);
             }
+            System.out.println(stmt.toString());
             return resultado;
         }
         catch(SQLException e)

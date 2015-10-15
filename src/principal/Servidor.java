@@ -1,15 +1,33 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2015 Adrián Ledo
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package principal;
 
 import clases.CodigoMetodo;
+import clases.EnvioPrivado;
+import clases.Mensaje;
 import envio_recepcion.Comunicacion;
 import envio_recepcion.Observer;
 import envio_recepcion.Subject;
 import gestionBD.GestionContactos;
+import gestionBD.GestionEnviosPrivados;
 import gestionBD.GestionGrupos;
+import gestionBD.GestionMensajes;
+import gestionBD.GestionUsuarios;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -40,12 +58,14 @@ public class Servidor implements Observer
     private String url, puerto, usuario, nombreBD, clave;
     
     private static ArrayList<Socket> arraySockets;
+    private static ArrayList<Comunicacion> arrayComunicaciones;
     private static ArrayList<Thread> arrayThreads;
     
     
     public Servidor()
     {
         arraySockets = new ArrayList<>();
+        arrayComunicaciones = new ArrayList<>();
         arrayThreads = new ArrayList<>();
     }
     
@@ -67,55 +87,64 @@ public class Servidor implements Observer
         consulta = "CREATE TABLE "+nombreBD+".`usuario` ("
                 + "  `alias` varchar(45) NOT NULL,"
                 + "  `contrasenha` varchar(45) NOT NULL,"
+                + " `dispConectados` INT(2) UNSIGNED NOT NULL DEFAULT 0,"
                 + "  PRIMARY KEY (`alias`))";
         stmt.executeUpdate(consulta);
-        consulta = "CREATE TABLE "+nombreBD+".`grupo` ("
-                + " `id` int(11) NOT NULL AUTO_INCREMENT,"
-                + " `nombre` varchar(45) NOT NULL,"
-                + " `aliasPropietario` varchar(45) NOT NULL,"
-                + " PRIMARY KEY (`id`),"
-                + " UNIQUE `nombre_alias` (`nombre`, `aliasPropietario`),"
-                + " KEY `pertenece` (`aliasPropietario`),"
-                + " CONSTRAINT `pertenece` FOREIGN KEY (`aliasPropietario`)"
-                + " REFERENCES `usuario` (`alias`)"
-                + " ON DELETE CASCADE ON UPDATE CASCADE)";
-        stmt.executeUpdate(consulta);
         consulta = "CREATE TABLE "+nombreBD+".`contacto` ("
-                + " `idGrupo` int(11) NOT NULL,"
-                + " `aliasContacto` varchar(45) NOT NULL,"
-                + " `nombre` varchar(45) DEFAULT NULL,"
-                + " `telefono` varchar(15) DEFAULT NULL,"
-                + " `direccion` varchar(45) DEFAULT NULL,"
-                + " `email` varchar(45) DEFAULT NULL,"
-                + " PRIMARY KEY (`idGrupo`,`aliasContacto`),"
-                + " KEY `grupo` (`idGrupo`),"
-                + " CONSTRAINT `grupo` FOREIGN KEY (`idGrupo`)"
-                + " REFERENCES `grupo` (`id`)"
-                + " ON DELETE CASCADE ON UPDATE CASCADE)";
+                + " `creador` varchar(45) NOT NULL,"
+                + "  `alias` varchar(45) NOT NULL,"
+                + "  `nombre` varchar(45) NOT NULL DEFAULT '',"
+                + "  `telefono` varchar(15) DEFAULT NULL,"
+                + "  `direccion` varchar(45) DEFAULT NULL,"
+                + "  `email` varchar(45) DEFAULT NULL,"
+                + "  PRIMARY KEY (`creador`,`alias`) USING BTREE,"
+                + "  KEY `FK_usuario_contacto` (`alias`),"
+                + "  CONSTRAINT `FK_creador_contacto` FOREIGN KEY (`creador`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE,"
+                + "  CONSTRAINT `FK_usuario_contacto` FOREIGN KEY (`alias`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE)";
         stmt.executeUpdate(consulta);
-        consulta = "CREATE TABLE "+nombreBD+".`conexion` ("
-                + " `aliasUsuario` varchar(45) NOT NULL,"
-                + " `ip` varchar(45) NOT NULL,"
-                + " PRIMARY KEY (`aliasUsuario`,`ip`))";
-        stmt.executeUpdate(consulta);
-        consulta = "CREATE TABLE "+nombreBD+".`mensaje` ("
-                + " `aliasUsuario` varchar(45) NOT NULL,"
-                + " `aliasContacto` varchar(45) NOT NULL,"
-                + " `fecha` datetime NOT NULL,"
-                + " `contenido` varchar(128) DEFAULT NULL,"
-                + " PRIMARY KEY (`aliasUsuario`,`aliasContacto`,`fecha`))";
-        stmt.executeUpdate(consulta);
-        consulta = "CREATE TABLE "+nombreBD+".`archivo` ("
-                + " `aliasUsuario` varchar(45) NOT NULL,"
-                + " `aliasContacto` varchar(45) NOT NULL,"
-                + " `fecha` datetime NOT NULL,"
+        consulta = "CREATE TABLE "+nombreBD+".`grupo` ("
+                + " `admin` varchar(45) NOT NULL,"
                 + " `nombre` varchar(45) NOT NULL,"
-                + " PRIMARY KEY (`aliasUsuario`,`aliasContacto`,`fecha`))";
+                + " PRIMARY KEY (`admin`,`nombre`) USING BTREE,"
+                + " KEY `pertenece` (`admin`),"
+                + " CONSTRAINT `pertenece` FOREIGN KEY (`admin`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE)";
         stmt.executeUpdate(consulta);
-        consulta = "insert into "+nombreBD+".usuario (alias, contrasenha) values ('admin','admin')";
+        consulta = "CREATE TABLE "+nombreBD+".`grupo_contacto` ("
+                + " `admin` varchar(45) NOT NULL,"
+                + " `nombreGrupo` varchar(45) NOT NULL,"
+                + " `aliasContacto` varchar(45) NOT NULL,"
+                + " PRIMARY KEY (`admin`,`nombreGrupo`,`aliasContacto`) USING BTREE,"
+                + " KEY `FK_contacto` (`admin`,`aliasContacto`),"
+                + " KEY `FK_grupo` (`admin`,`nombreGrupo`),"
+                + " CONSTRAINT `FK_contacto` FOREIGN KEY (`admin`, `aliasContacto`) REFERENCES `contacto` (`creador`, `alias`) ON DELETE CASCADE ON UPDATE CASCADE,"
+                + " CONSTRAINT `FK_grupo` FOREIGN KEY (`admin`, `nombreGrupo`) REFERENCES `grupo` (`admin`, `nombre`) ON DELETE CASCADE ON UPDATE CASCADE)";
+        stmt.executeUpdate(consulta);
+        consulta = "CREATE TABLE "+nombreBD+".`envio_privado` ("
+                + " `remitente` varchar(45) NOT NULL,"
+                + " `destinatario` varchar(45) NOT NULL,"
+                + " `fechaHora` datetime NOT NULL,"
+                + " `contenido` varchar(128) DEFAULT NULL,"
+                + " `tipo` ENUM ('mensaje', 'archivo') NOT NULL,"
+                + " `estado` ENUM ('EN_SERVIDOR', 'ENVIADO') DEFAULT 'EN_SERVIDOR',"
+                + " PRIMARY KEY (`remitente`,`destinatario`,`fechaHora`) USING BTREE,"
+                + " CONSTRAINT `FK_remitente` FOREIGN KEY (`remitente`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE,"
+                + " CONSTRAINT `FK_destinatario` FOREIGN KEY (`destinatario`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE)";
+        stmt.executeUpdate(consulta);
+        consulta = "CREATE TABLE "+nombreBD+".`envio_grupal` ("
+                + " `remitente` varchar(45) NOT NULL,"
+                + " `adminGrupo` varchar(45) NOT NULL,"
+                + " `nombreGrupo` varchar(45) NOT NULL,"
+                + " `fechaHora` datetime NOT NULL,"
+                + " `contenido` varchar(128) DEFAULT NULL,"
+                + " `tipo` ENUM ('mensaje', 'archivo') NOT NULL,"
+                + " PRIMARY KEY (`remitente`,`adminGrupo`,`nombreGrupo`,`fechaHora`) USING BTREE,"
+                + " CONSTRAINT `FK_remitenteGr` FOREIGN KEY (`remitente`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE,"
+                + " CONSTRAINT `FK_destinatarioGr` FOREIGN KEY (`adminGrupo`,`nombreGrupo`) REFERENCES `grupo` (`admin`, `nombre`) ON DELETE CASCADE ON UPDATE CASCADE)";
+        stmt.executeUpdate(consulta);
+    /*    consulta = "insert into "+nombreBD+".usuario (alias, contrasenha) values ('admin','admin')";
         stmt.executeUpdate(consulta);
         consulta = "insert into "+nombreBD+".grupo (id, nombre, aliasPropietario) VALUES (0,'administrador','admin')";
-        stmt.executeUpdate(consulta);  
+        stmt.executeUpdate(consulta);*/
     }
     
     private void leerProperties()
@@ -204,6 +233,7 @@ public class Servidor implements Observer
                         System.out.println("Servidor: Resultado insertado en flujo");
                         break;
                     case CodigoMetodo.DESCONECTARSE:
+                        GestionUsuarios.cerrarSesion(com.getUser());
                         posViaCom = arraySockets.indexOf(com.getSocket());
                         arrayThreads.get(posViaCom).interrupt();
                         arraySockets.remove(com.getSocket());
@@ -223,7 +253,7 @@ public class Servidor implements Observer
                         break;
                     case CodigoMetodo.MODIFICAR_CONTACTO:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionContactos.modificarContacto(com.getContacto(), com.getIdGrupo()));
+                        objFlujoS.writeObject(GestionContactos.modificarContacto(com.getContacto()));
                         break;
                     case CodigoMetodo.LISTAR_GRUPOS:
                         objFlujoS.writeObject(com.getCodigo());
@@ -233,7 +263,7 @@ public class Servidor implements Observer
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionGrupos.insertarGrupo(com.getGrupo()));
                         break;
-                    case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
+                /*    case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionContactos.listarContactosGrupo(com.getIdGrupo()));
                         break;
@@ -245,10 +275,15 @@ public class Servidor implements Observer
                             resultado = GestionGrupos.eliminarGrupo(com.getGrupo());
                         }
                         objFlujoS.writeObject(resultado);
-                        break;
+                        break;*/
                     case CodigoMetodo.MODIFICAR_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionGrupos.modificarGrupo(com.getGrupo()));
+                        objFlujoS.writeObject(GestionGrupos.modificarGrupo(com.getGrupo(), com.getNombreActual()));
+                        break;
+                    case CodigoMetodo.ENVIAR_MENSAJE_P:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionEnviosPrivados.insertarEnvioP(com.getEnvioPrivado()));
+                        this.enviarMensajeP(com.getEnvioPrivado());
                         break;
                     default:
                         break;
@@ -279,6 +314,7 @@ public class Servidor implements Observer
                 {
                     com = new Comunicacion(arraySockets.get(arraySockets.size()-1));
                     com.registerObserver(server);
+                    arrayComunicaciones.add(com);
                     thCom = new Thread(com);
                     arrayThreads.add(thCom);
                     thCom.start();
@@ -289,6 +325,23 @@ public class Servidor implements Observer
             JOptionPane.showMessageDialog(null, ex.getMessage());
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void enviarMensajeP(EnvioPrivado mensajeP) {
+        for(Comunicacion c : arrayComunicaciones)
+        {
+            if(c.getUser().getAlias().equals(mensajeP.getDestinatario()))
+            {
+                ObjectOutputStream objFlujoS = c.getObjFlujoS();
+                try {
+                    objFlujoS.writeObject(CodigoMetodo.RECIBIR_MENSAJE_P);
+                    objFlujoS.writeObject(mensajeP);
+                } catch (IOException ex) {
+                    Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return;
+            }
         }
     }
 }
