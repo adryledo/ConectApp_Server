@@ -19,14 +19,13 @@ package principal;
 
 import clases.CodigoMetodo;
 import clases.EnvioPrivado;
-import clases.Mensaje;
 import envio_recepcion.Comunicacion;
 import envio_recepcion.Observer;
 import envio_recepcion.Subject;
 import gestionBD.GestionContactos;
 import gestionBD.GestionEnviosPrivados;
+import gestionBD.GestionGrupoContacto;
 import gestionBD.GestionGrupos;
-import gestionBD.GestionMensajes;
 import gestionBD.GestionUsuarios;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +34,7 @@ import java.io.ObjectOutputStream;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -43,7 +43,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import utilidadesBD.Conexion;
+import utilidadesBD.ConexionBD;
 
 /**
  *
@@ -173,8 +173,8 @@ public class Servidor implements Observer
         try
         {
             int resultado = 0;
-            Conexion.conectar(url, puerto, usuario, "", clave);
-            Statement stmt = Conexion.getConexion().createStatement();
+            ConexionBD.conectar(url, puerto, usuario, "", clave);
+            Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta = "SHOW DATABASES LIKE '"+nombreBD+"'";
             ResultSet rs = stmt.executeQuery(consulta);
             while(rs.next())
@@ -197,12 +197,12 @@ public class Servidor implements Observer
     
     /**
      * Conecta con la base de datos
-     * @see utilidadesBD.Conexion
+     * @see utilidadesBD.ConexionBD
      * @exception IOException No lanza ninguna excepci&oacute;n, pero había que usar esta etiqueta...
      */
     private void conectarBD()
     {
-        switch(Conexion.conectar(this.url, this.puerto, this.usuario, this.nombreBD, this.clave))
+        switch(ConexionBD.conectar(this.url, this.puerto, this.usuario, this.nombreBD, this.clave))
         {
             case -1: System.err.println("Error en cadena de conexion");
                 System.exit(0);
@@ -210,6 +210,20 @@ public class Servidor implements Observer
             case -2: System.err.println("No se ha cargado el driver");
                 System.exit(0);
                 return;
+        }
+    }
+    
+    private void inicializarValoresBD()
+    {
+        try {
+            String consulta = "set SQL_SAFE_UPDATES=0";
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
+            stmt.executeUpdate();
+            consulta = "update conect_app.usuario set dispConectados=0";
+            stmt = ConexionBD.getConexion().prepareStatement(consulta);
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -239,9 +253,9 @@ public class Servidor implements Observer
                         arraySockets.remove(com.getSocket());
                         arrayThreads.remove(posViaCom);
                         break;
-                    case CodigoMetodo.LISTAR_CONTACTOS:
+                    case CodigoMetodo.LISTAR_CONTACTOS_USUARIO:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionContactos.listarContactos(com.getGroupOwnerNick()));
+                        objFlujoS.writeObject(GestionContactos.listarContactos(com.getAdmin()));
                         break;
                     case CodigoMetodo.INSERTAR_CONTACTO:
                         objFlujoS.writeObject(com.getCodigo());
@@ -257,17 +271,17 @@ public class Servidor implements Observer
                         break;
                     case CodigoMetodo.LISTAR_GRUPOS:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionGrupos.listarGrupos(com.getGroupOwnerNick()));
+                        objFlujoS.writeObject(GestionGrupos.listarGrupos(com.getAdmin()));
                         break;
                     case CodigoMetodo.INSERTAR_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionGrupos.insertarGrupo(com.getGrupo()));
                         break;
-                /*    case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
+                    case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionContactos.listarContactosGrupo(com.getIdGrupo()));
+                        objFlujoS.writeObject(GestionGrupoContacto.listarContactosGrupo(com.getGrupo()));
                         break;
-                    case CodigoMetodo.ELIMINAR_GRUPO:
+                /*    case CodigoMetodo.ELIMINAR_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
                         int resultado;
                         if((resultado=GestionContactos.eliminarContactosGrupo(com.getGrupo())) == 0)
@@ -284,6 +298,11 @@ public class Servidor implements Observer
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionEnviosPrivados.insertarEnvioP(com.getEnvioPrivado()));
                         this.enviarMensajeP(com.getEnvioPrivado());
+                        break;
+                    case CodigoMetodo.INSERTAR_GRUPO_CONTACTO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupoContacto.insertarContactoAGrupo(com.getGrupo(), com.getContacto()));
+                        objFlujoS.writeObject(com.getGrupo());
                         break;
                     default:
                         break;
@@ -304,6 +323,7 @@ public class Servidor implements Observer
         server.configurarDirectoriosProperties();
         server.comprobarBD();
         server.conectarBD();
+        server.inicializarValoresBD();
         
         try
         {

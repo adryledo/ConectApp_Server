@@ -7,7 +7,7 @@ package gestionBD;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import utilidadesBD.Conexion;
+import utilidadesBD.ConexionBD;
 
 import clases.Contacto;
 import clases.Grupo;
@@ -51,7 +51,7 @@ public class GestionContactos
             String consulta = "insert into contacto "
                     + "(creador, alias, nombre, telefono, direccion, email) VALUES (?,?,?,?,?,?)";
             
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, c.getCreador());
             stmt.setString(2, c.getAlias());
             stmt.setString(3, c.getNombre());
@@ -80,14 +80,14 @@ public class GestionContactos
     {
         try
         {
-        /*    Statement stmt=Conexion.getConexion().createStatement();
+        /*    Statement stmt=ConexionBD.getConexion().createStatement();
             String consulta= "delete from contacto where creador='"+c.getCreador()
                     +"' AND alias='"+c.getAlias()+"'";
             System.out.println(consulta);
             stmt.executeUpdate(consulta);            
             return 0;*/
             String consulta= "delete from contacto where creador=? AND alias=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, c.getCreador());
             stmt.setString(2, c.getAlias());
             System.out.println(stmt.toString());
@@ -114,7 +114,7 @@ public class GestionContactos
         try
         {
             String consulta = "update contacto set nombre=?, telefono=?, direccion=?, email=? where creador=? AND alias=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, c.getNombre());
             stmt.setString(2, c.getTelefono());
             stmt.setString(3, c.getDireccion());
@@ -144,13 +144,13 @@ public class GestionContactos
         try
         {
             ArrayList<Contacto> resultado = new ArrayList();
-        /*    Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = ConexionBD.getConexion().createStatement();
             //String consulta= "select * from contacto order by aliasContacto";
             String consulta = "SELECT * FROM contacto where creador like  '"+creador+"')";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);*/
             String consulta = "SELECT * FROM contacto where creador=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, creador);
             stmt.execute();
             ResultSet rs = stmt.getResultSet();
@@ -174,7 +174,7 @@ public class GestionContactos
         try
         {
             ArrayList<Contacto> resultado = new ArrayList();
-            Statement stmt = Conexion.getConexion().createStatement();
+            Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta= "select * from contacto where idGrupo like "+idGrupo+"";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
@@ -197,7 +197,7 @@ public class GestionContactos
         try
         {
             Contacto resultado = null;
-            Statement stmt = Conexion.getConexion().createStatement();
+            Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta= "select * from contacto where aliasContacto in (select aliasUsuario from conexion where ip like '"+ip+"') ";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
@@ -217,7 +217,7 @@ public class GestionContactos
     private static boolean existeContacto(Contacto c) {
         try
         {
-        /*    Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta= "select * from contacto "
                     + "where creador='"+c.getCreador()+"' AND alias='"+c.getAlias()+"'";
             System.out.println(consulta);
@@ -228,7 +228,7 @@ public class GestionContactos
             }
             return false;*/
             String consulta= "select * from contacto where creador=? AND alias=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, c.getCreador());
             stmt.setString(2, c.getAlias());
             System.out.println(stmt.toString());
@@ -243,7 +243,7 @@ public class GestionContactos
 /*
     private static boolean esPropietario(int idGrupo, String aliasContacto) {
         try {
-            Statement stmt = Conexion.getConexion().createStatement();
+            Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta = "select * from grupo where id like "+idGrupo+" and aliasPropietario like '"+aliasContacto+"'";
             ResultSet rs = stmt.executeQuery(consulta);
             return rs.next();
@@ -256,7 +256,7 @@ public class GestionContactos
 /*    public static int eliminarContactosGrupo(Grupo grupo) {
         try
         {
-            Statement stmt=Conexion.getConexion().createStatement();
+            Statement stmt=ConexionBD.getConexion().createStatement();
             String consulta= "delete from contacto where idGrupo="+grupo.getId();
             System.out.println(consulta);
             stmt.executeUpdate(consulta);            

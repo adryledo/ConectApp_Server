@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import utilidadesBD.Conexion;
+import utilidadesBD.ConexionBD;
 /**
  *
  * @author Adri&aacute;n Ledo
@@ -34,7 +34,7 @@ public class GestionGrupos
         try
         {
             String consulta= "insert into grupo (admin, nombre) VALUES (?,?)";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
             System.out.println(stmt.toString());
@@ -60,14 +60,14 @@ public class GestionGrupos
     {
         try
         {
-        /*    Statement stmt=Conexion.getConexion().createStatement();
+        /*    Statement stmt=ConexionBD.getConexion().createStatement();
             String consulta= "delete from grupo where admin='"+g.getAdmin()+"' and"
                     + " nombre='"+g.getNombre()+"'";
             System.out.println(consulta);
             stmt.executeUpdate(consulta);
             return 0;*/
             String consulta= "delete from grupo where admin=? and nombre=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
             System.out.println(stmt.toString());
@@ -92,14 +92,14 @@ public class GestionGrupos
     {
         try
         {
-        /*    Statement stmt=Conexion.getConexion().createStatement();
+        /*    Statement stmt=ConexionBD.getConexion().createStatement();
             String consulta= "update grupo set nombre='"+g.getNombre()+"' where admin='"+g.getAdmin()
                     + "' and nombre='"+nombreActual+"'";
             stmt.executeUpdate(consulta);
             System.out.println(stmt.toString());
             return 0;*/
             String consulta= "update grupo set nombre=? where admin=? and nombre=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, g.getNombre());
             stmt.setString(2, g.getAdmin());
             stmt.setString(3, nombreActual);
@@ -119,7 +119,7 @@ public class GestionGrupos
         try
         {
             ArrayList<Grupo> resultado = new ArrayList<>();
-        /*    Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta= "select * from grupo order by nombre";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);
@@ -130,7 +130,7 @@ public class GestionGrupos
             }
             return resultado;*/
             String consulta= "select * from grupo order by nombre";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.execute();
             ResultSet rs = stmt.getResultSet();
             while(rs.next())
@@ -159,13 +159,13 @@ public class GestionGrupos
         try
         {
             ArrayList<Grupo> resultado = new ArrayList();
-        /*    Statement stmt = Conexion.getConexion().createStatement();
+        /*    Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta= "select * from grupo "
                     + "where admin='"+admin+"' order by nombre";
             System.out.println(consulta);
             ResultSet rs = stmt.executeQuery(consulta);*/
             String consulta = "select * from grupo where admin=? order by nombre";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, admin);
             stmt.execute();
             ResultSet rs = stmt.getResultSet();

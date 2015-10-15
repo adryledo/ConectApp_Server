@@ -14,7 +14,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utilidadesBD.Conexion;
+import utilidadesBD.ConexionBD;
 
 /**
  * 
@@ -32,7 +32,7 @@ public class GestionEnviosPrivados {
         {
             String consulta = "insert into envio_privado "
                     + "(remitente, destinatario, fechaHora, contenido, tipo, estado) VALUES (?,?,?,?,?,?)";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, ep.getRemitente());
             stmt.setString(2, ep.getDestinatario());
             stmt.setTimestamp(3, ep.getFechaHora());
@@ -60,13 +60,13 @@ public class GestionEnviosPrivados {
     {
         ArrayList<String> listaMensajes = new ArrayList<>();
         try {
-            /*Statement stmt = Conexion.getConexion().createStatement();
+            /*Statement stmt = ConexionBD.getConexion().createStatement();
             String consulta = "select contenido from mensaje where (aliasUsuario like '"+remitente+"' AND aliasContacto like '"+destinatario+"') "
                     + "OR (aliasUsuario like '"+destinatario+"' AND aliasContacto like '"+remitente+"')";
             ResultSet rs = stmt.executeQuery(consulta);*/
             String consulta = "select contenido from envio_privado where (remitente=? AND"
                     + " destinatario=?) OR (remitente=? AND destinatario=?)";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, remitente);
             stmt.setString(2, destinatario);
             stmt.setString(3, destinatario);
@@ -78,7 +78,7 @@ public class GestionEnviosPrivados {
             }
             return listaMensajes;
         } catch (SQLException ex) {
-            Logger.getLogger(GestionMensajes.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GestionEnviosPrivados.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
     }

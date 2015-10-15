@@ -7,7 +7,7 @@ package gestionBD;
 import clases.Archivo;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import utilidadesBD.Conexion;
+import utilidadesBD.ConexionBD;
 
 /**
  *
@@ -19,7 +19,7 @@ public class GestionArchivos
         try
         {
             String consulta = "insert into archivo (aliasUsuario, aliasContacto, fecha, nombre) VALUES (?,?,?,?)";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, a.getAliasUsuario());
             stmt.setString(2, a.getAliasContacto());
             stmt.setString(3, a.getFecha());

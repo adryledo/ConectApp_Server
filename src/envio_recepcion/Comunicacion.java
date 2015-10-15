@@ -21,7 +21,6 @@ import clases.CodigoMetodo;
 import clases.Contacto;
 import clases.EnvioPrivado;
 import clases.Grupo;
-import clases.Mensaje;
 import clases.Usuario;
 import gestionBD.GestionUsuarios;
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class Comunicacion extends Subject implements Runnable{
     private int resultado;
     private Contacto contacto;
     private ObjectOutputStream objFlujoS;
-    private String groupOwnerNick;
+    private String admin;
     private Grupo grupo;
     private int idGrupo;
     private EnvioPrivado envioPrivado;
@@ -84,8 +83,8 @@ public class Comunicacion extends Subject implements Runnable{
         return grupo;
     }
 
-    public String getGroupOwnerNick() {
-        return groupOwnerNick;
+    public String getAdmin() {
+        return admin;
     }
 
     public ObjectOutputStream getObjFlujoS() {
@@ -162,16 +161,16 @@ public class Comunicacion extends Subject implements Runnable{
                         this.grupo = (Grupo) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
-                    case CodigoMetodo.LISTAR_CONTACTOS:
-                        this.groupOwnerNick = (String) objFlujoE.readObject();
+                    case CodigoMetodo.LISTAR_CONTACTOS_USUARIO:
+                        this.admin = (String) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.LISTAR_CONTACTOS_GRUPO:
-                        this.idGrupo = (int) objFlujoE.readObject();
+                        this.grupo = (Grupo) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.LISTAR_GRUPOS:
-                        this.groupOwnerNick = (String) objFlujoE.readObject();
+                        this.admin = (String) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.MODIFICAR_CONTACTO:
@@ -192,6 +191,11 @@ public class Comunicacion extends Subject implements Runnable{
                         break;
                     case CodigoMetodo.ENVIAR_MENSAJE_P:
                         this.envioPrivado = (EnvioPrivado) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.INSERTAR_GRUPO_CONTACTO:
+                        this.grupo = (Grupo) objFlujoE.readObject();
+                        this.contacto = (Contacto) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     default:

@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import utilidadesBD.Conexion;
+import utilidadesBD.ConexionBD;
 
 /**
  *
@@ -28,7 +28,7 @@ public class GestionUsuarios {
     static boolean existeUsuario(String aliasPropietario) {
         try {
             String consulta = "select * from usuario where alias=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, aliasPropietario);
             System.out.println(stmt.toString());
             return stmt.executeQuery().next();
@@ -49,7 +49,7 @@ public class GestionUsuarios {
         try {
             String consulta = "update usuario set dispConectados=dispConectados+1 where"
                     + " alias=? and contrasenha=?";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, usuario.getAlias());
             stmt.setString(2, usuario.getContrasenha());
             System.out.println(stmt.toString());
@@ -76,7 +76,7 @@ public class GestionUsuarios {
         
         try {
             String consulta = "insert into usuario (alias, contrasenha, dispConectados) values (?,?,1)";
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, usuario.getAlias());
             stmt.setString(2, usuario.getContrasenha());
             System.out.println(stmt.toString());
@@ -92,7 +92,7 @@ public class GestionUsuarios {
         try {
             String consulta = "update usuario set dispConectados=dispConectados-1 where"
                     + " alias=?";// and contrasenha=?
-            PreparedStatement stmt = Conexion.getConexion().prepareStatement(consulta);
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, user.getAlias());
         //    stmt.setString(2, user.getContrasenha());
             System.out.println(stmt.toString());
