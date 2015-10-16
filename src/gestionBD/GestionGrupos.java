@@ -8,7 +8,6 @@ import clases.Grupo;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import utilidadesBD.ConexionBD;
 /**
@@ -60,12 +59,6 @@ public class GestionGrupos
     {
         try
         {
-        /*    Statement stmt=ConexionBD.getConexion().createStatement();
-            String consulta= "delete from grupo where admin='"+g.getAdmin()+"' and"
-                    + " nombre='"+g.getNombre()+"'";
-            System.out.println(consulta);
-            stmt.executeUpdate(consulta);
-            return 0;*/
             String consulta= "delete from grupo where admin=? and nombre=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, g.getAdmin());
@@ -83,26 +76,20 @@ public class GestionGrupos
     /**
      * Modifica el nombre del grupo
      * @param g Grupo con el nombre nuevo
-     * @param nombreActual nombre del grupo antes de modificarlo
+     * @param nuevoNombre nombre del grupo antes de modificarlo
      * @return 0    si todo fue bien<br>
      *      -1  si no se pudo modificar<br>
      *      -2  si modifica más de uno o ninguno
      */
-    public static int modificarGrupo(Grupo g, String nombreActual)
+    public static int modificarGrupo(Grupo g, String nuevoNombre)
     {
         try
         {
-        /*    Statement stmt=ConexionBD.getConexion().createStatement();
-            String consulta= "update grupo set nombre='"+g.getNombre()+"' where admin='"+g.getAdmin()
-                    + "' and nombre='"+nombreActual+"'";
-            stmt.executeUpdate(consulta);
-            System.out.println(stmt.toString());
-            return 0;*/
             String consulta= "update grupo set nombre=? where admin=? and nombre=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
-            stmt.setString(1, g.getNombre());
+            stmt.setString(1, nuevoNombre);
             stmt.setString(2, g.getAdmin());
-            stmt.setString(3, nombreActual);
+            stmt.setString(3, g.getNombre());
             System.out.println(stmt.toString());
             return (stmt.executeUpdate()==1 ? 0 : -2);
         }

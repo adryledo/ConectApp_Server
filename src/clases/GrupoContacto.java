@@ -16,11 +16,13 @@
  */
 package clases;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Adri&aacute;n Ledo
  */
-public class GrupoContacto
+public class GrupoContacto implements Serializable
 {
     private String admin, nombreGrupo, aliasContacto;
 

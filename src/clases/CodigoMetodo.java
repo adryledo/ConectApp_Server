@@ -49,4 +49,6 @@ public class CodigoMetodo
     
     public static final int INSERTAR_GRUPO_CONTACTO = 50;
     public static final int LISTAR_CONTACTOS_GRUPO = 51;
+    public static final int ELIMINAR_GRUPO_CONTACTO = 52;
+    public static final int LISTAR_GRUPOS_CONTACTO = 53;
 }

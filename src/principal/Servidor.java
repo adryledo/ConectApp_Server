@@ -19,6 +19,7 @@ package principal;
 
 import clases.CodigoMetodo;
 import clases.EnvioPrivado;
+import clases.Grupo;
 import envio_recepcion.Comunicacion;
 import envio_recepcion.Observer;
 import envio_recepcion.Subject;
@@ -281,18 +282,13 @@ public class Servidor implements Observer
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionGrupoContacto.listarContactosGrupo(com.getGrupo()));
                         break;
-                /*    case CodigoMetodo.ELIMINAR_GRUPO:
+                    case CodigoMetodo.ELIMINAR_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
-                        int resultado;
-                        if((resultado=GestionContactos.eliminarContactosGrupo(com.getGrupo())) == 0)
-                        {
-                            resultado = GestionGrupos.eliminarGrupo(com.getGrupo());
-                        }
-                        objFlujoS.writeObject(resultado);
-                        break;*/
+                        objFlujoS.writeObject(GestionGrupos.eliminarGrupo(com.getGrupo()));
+                        break;
                     case CodigoMetodo.MODIFICAR_GRUPO:
                         objFlujoS.writeObject(com.getCodigo());
-                        objFlujoS.writeObject(GestionGrupos.modificarGrupo(com.getGrupo(), com.getNombreActual()));
+                        objFlujoS.writeObject(GestionGrupos.modificarGrupo(com.getGrupo(), com.getNuevoNombre()));
                         break;
                     case CodigoMetodo.ENVIAR_MENSAJE_P:
                         objFlujoS.writeObject(com.getCodigo());
@@ -303,6 +299,17 @@ public class Servidor implements Observer
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionGrupoContacto.insertarContactoAGrupo(com.getGrupo(), com.getContacto()));
                         objFlujoS.writeObject(com.getGrupo());
+                        objFlujoS.writeObject(com.getContacto());
+                        break;
+                    case CodigoMetodo.ELIMINAR_GRUPO_CONTACTO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupoContacto.eliminarContactoDeGrupo(com.getGrupo(), com.getContacto()));
+                        objFlujoS.writeObject(com.getGrupo());
+                        objFlujoS.writeObject(com.getContacto());
+                        break;
+                    case CodigoMetodo.LISTAR_GRUPOS_CONTACTO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupoContacto.listarGruposContacto(com.getContacto()));
                         break;
                     default:
                         break;

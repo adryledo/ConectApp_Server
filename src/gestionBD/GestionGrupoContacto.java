@@ -42,7 +42,7 @@ public class GestionGrupoContacto {
      *      -2
      */
     public static int insertarContactoAGrupo(Grupo g, Contacto c)
-    {sustituir g y c por grupoContacto
+    {
         try {
             String consulta = "insert into grupo_contacto values (?,?,?)";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
@@ -87,19 +87,48 @@ public class GestionGrupoContacto {
     }
     
     /**
+     * 
+     * @param contacto
+     * @return Grupos a los que pertenece el contacto
+     */
+    public static ArrayList<Grupo> listarGruposContacto(Contacto contacto)
+    {
+        try {
+            ArrayList<Grupo> arrayGrupos = new ArrayList<>();
+            String consulta = "select nombreGrupo from grupo_contacto where"
+                    + " admin=? and aliasContacto=?";
+            PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
+            stmt.setString(1, contacto.getCreador());
+            stmt.setString(2, contacto.getAlias());
+            stmt.execute();
+            System.out.println(stmt.toString());
+            ResultSet rs = stmt.getResultSet();
+            while(rs.next())
+            {
+                arrayGrupos.add(new Grupo(contacto.getCreador(), rs.getString(1)));
+            }
+            return arrayGrupos;
+        } catch (SQLException ex) {
+            Logger.getLogger(GestionGrupoContacto.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+    }
+    
+    /**
      * Elimina la fila correspondiente de la tabla grupo_contacto
-     * @param gc    GrupoContacto a eliminar
+     * @param g Grupo del que se elimina
+     * @param c Contacto a eliminar
      * @return 0    si pudo eliminar<br>
      *      -1 o -2 si en caso de fallo
      */
-    public static int eliminarContactoDeGrupo(GrupoContacto gc)
+    public static int eliminarContactoDeGrupo(Grupo g, Contacto c)
     {
         try {
             String consulta = "delete from grupo_contacto where admin=? and nombreGrupo=? and aliasContacto=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
-            stmt.setString(1, gc.getAdmin());
-            stmt.setString(2, gc.getNombreGrupo());
-            stmt.setString(3, gc.getAliasContacto());
+            stmt.setString(1, g.getAdmin());
+            stmt.setString(2, g.getNombre());
+            stmt.setString(3, c.getAlias());
             return (stmt.executeUpdate()==1 ? 0 : -2);
         } catch (SQLException ex) {
             Logger.getLogger(GestionGrupoContacto.class.getName()).log(Level.SEVERE, null, ex);

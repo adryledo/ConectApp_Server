@@ -21,6 +21,7 @@ import clases.CodigoMetodo;
 import clases.Contacto;
 import clases.EnvioPrivado;
 import clases.Grupo;
+import clases.GrupoContacto;
 import clases.Usuario;
 import gestionBD.GestionUsuarios;
 import java.io.IOException;
@@ -48,7 +49,8 @@ public class Comunicacion extends Subject implements Runnable{
     private Grupo grupo;
     private int idGrupo;
     private EnvioPrivado envioPrivado;
-    private String nombreActual;
+    private String nuevoNombre;
+    private GrupoContacto grupoContacto;
 
     public Comunicacion(Socket s)
     {
@@ -63,8 +65,12 @@ public class Comunicacion extends Subject implements Runnable{
         }
     }
 
-    public String getNombreActual() {
-        return nombreActual;
+    public GrupoContacto getGrupoContacto() {
+        return grupoContacto;
+    }
+
+    public String getNuevoNombre() {
+        return nuevoNombre;
     }
 
     public Usuario getUser() {
@@ -186,7 +192,7 @@ public class Comunicacion extends Subject implements Runnable{
                         break;
                     case CodigoMetodo.MODIFICAR_GRUPO:
                         this.grupo = (Grupo) objFlujoE.readObject();
-                        this.nombreActual = (String) objFlujoE.readObject();
+                        this.nuevoNombre = (String) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.ENVIAR_MENSAJE_P:
@@ -195,6 +201,15 @@ public class Comunicacion extends Subject implements Runnable{
                         break;
                     case CodigoMetodo.INSERTAR_GRUPO_CONTACTO:
                         this.grupo = (Grupo) objFlujoE.readObject();
+                        this.contacto = (Contacto) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.ELIMINAR_GRUPO_CONTACTO:
+                        this.grupo = (Grupo) objFlujoE.readObject();
+                        this.contacto = (Contacto) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.LISTAR_GRUPOS_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
                         this.notifyObservers();
                         break;
