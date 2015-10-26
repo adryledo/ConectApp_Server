@@ -135,6 +135,7 @@ public class EnvioArchivo extends Subject implements Runnable {
                 System.out.println("EnvioPrivado enviado");
                 envioFich();
                 System.out.println("Fichero enviado!!!");
+                miFich.delete();
             //    socketEnviar.close();
             } catch (UnknownHostException e) {
                 System.out.println("Referencia a host no resuelta");
