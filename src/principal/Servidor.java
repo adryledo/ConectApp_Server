@@ -19,9 +19,10 @@ package principal;
 
 import clases.CodigoMetodo;
 import clases.EnvioPrivado;
-import clases.Grupo;
 import envio_recepcion.Comunicacion;
+import envio_recepcion.EnvioArchivo;
 import envio_recepcion.Observer;
+import envio_recepcion.RecepcionArchivo;
 import envio_recepcion.Subject;
 import gestionBD.GestionContactos;
 import gestionBD.GestionEnviosPrivados;
@@ -62,12 +63,23 @@ public class Servidor implements Observer
     private static ArrayList<Comunicacion> arrayComunicaciones;
     private static ArrayList<Thread> arrayThreads;
     
+    private static ArrayList<Socket> arraySocketsArchivo;
+    private static ArrayList<RecepcionArchivo> arrayRecepcionesArchivo;
+    private static ArrayList<Thread> arrayThreadsArchivo;
+    
+    private Thread thEnvioArch;
+    
     
     public Servidor()
     {
         arraySockets = new ArrayList<>();
         arrayComunicaciones = new ArrayList<>();
         arrayThreads = new ArrayList<>();
+        
+        arraySocketsArchivo = new ArrayList<>();
+        arrayRecepcionesArchivo = new ArrayList<>();
+        arrayThreadsArchivo = new ArrayList<>();
+        // TODO - cerrar threads y sockets
     }
     
     private void configurarDirectoriosProperties()
@@ -317,6 +329,22 @@ public class Servidor implements Observer
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } else if(subject instanceof RecepcionArchivo)
+        {
+            RecepcionArchivo recepArch = (RecepcionArchivo) subject;
+            if(recepArch.isRecibido())
+            {
+                for(RecepcionArchivo ra : arrayRecepcionesArchivo)
+                {
+                    if(ra.getUsuario().getAlias().equals(recepArch.getEnvPriv().getDestinatario()))
+                    {
+                        EnvioArchivo envArch = new EnvioArchivo(ra.getSocketArchivo(), recepArch.getRutaArchivo(), recepArch.getEnvPriv());
+                        envArch.registerObserver(this);
+                        thEnvioArch = new Thread(envArch);
+                        thEnvioArch.start();
+                    }
+                }
+            }
         }
     }
     
@@ -327,6 +355,9 @@ public class Servidor implements Observer
         Comunicacion com;
         Thread thCom;
         
+        RecepcionArchivo recepArchivo;
+        Thread thRecepArchivo;
+        
         server.configurarDirectoriosProperties();
         server.comprobarBD();
         server.conectarBD();
@@ -335,9 +366,10 @@ public class Servidor implements Observer
         try
         {
             ServerSocket socketServidor = new ServerSocket(62006);
+            ServerSocket socketArchivos = new ServerSocket(62005);
             while(true)
             {
-                if(arraySockets.add(socketServidor.accept()))
+                if(arraySockets.add(socketServidor.accept()) && arraySocketsArchivo.add(socketArchivos.accept()))
                 {
                     com = new Comunicacion(arraySockets.get(arraySockets.size()-1));
                     com.registerObserver(server);
@@ -345,6 +377,13 @@ public class Servidor implements Observer
                     thCom = new Thread(com);
                     arrayThreads.add(thCom);
                     thCom.start();
+                    
+                    recepArchivo = new RecepcionArchivo(arraySocketsArchivo.get(arraySocketsArchivo.size()-1));
+                    recepArchivo.registerObserver(server);
+                    arrayRecepcionesArchivo.add(recepArchivo);
+                    thRecepArchivo = new Thread(recepArchivo);
+                    arrayThreadsArchivo.add(thRecepArchivo);
+                    thRecepArchivo.start();
                 }
             }
         } catch (BindException ex)
