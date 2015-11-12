@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author infdaid2
+ * @author Adri&aacute;n Ledo
  */
 public class Comunicacion extends Subject implements Runnable{
 
@@ -210,6 +210,22 @@ public class Comunicacion extends Subject implements Runnable{
                         this.notifyObservers();
                         break;
                     case CodigoMetodo.LISTAR_GRUPOS_CONTACTO:
+                        this.contacto = (Contacto) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.INFORME_CONTACTOS:
+                        this.admin = (String) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.INFORME_GRUPOS:
+                        this.admin = (String) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.INFORME_CONTACTOS_GRUPO:
+                        this.grupo = (Grupo) objFlujoE.readObject();
+                        this.notifyObservers();
+                        break;
+                    case CodigoMetodo.INFORME_MENSAJES_CONTACTO:
                         this.contacto = (Contacto) objFlujoE.readObject();
                         this.notifyObservers();
                         break;

@@ -49,7 +49,7 @@ import utilidadesBD.ConexionBD;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public class Servidor implements Observer
 {
@@ -137,7 +137,7 @@ public class Servidor implements Observer
                 + " `destinatario` varchar(45) NOT NULL,"
                 + " `fechaHora` datetime NOT NULL,"
                 + " `contenido` varchar(128) DEFAULT NULL,"
-                + " `tipo` ENUM ('mensaje', 'archivo') NOT NULL,"
+                + " `tipo` ENUM ('MENSAJE', 'ARCHIVO') NOT NULL,"
                 + " `estado` ENUM ('EN_SERVIDOR', 'ENVIADO') DEFAULT 'EN_SERVIDOR',"
                 + " PRIMARY KEY (`remitente`,`destinatario`,`fechaHora`) USING BTREE,"
                 + " CONSTRAINT `FK_remitente` FOREIGN KEY (`remitente`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE,"
@@ -258,6 +258,14 @@ public class Servidor implements Observer
                         System.out.println("Servidor: Codigo insertado en flujo");
                         objFlujoS.writeObject(com.getResultado());
                         System.out.println("Servidor: Resultado insertado en flujo");
+                        ArrayList<EnvioPrivado> mensajesPendientes;
+                        if((mensajesPendientes=GestionEnviosPrivados.mostrarMensajesPendientes(com.getUser().getAlias())) != null)
+                        {
+                            for(EnvioPrivado envP : mensajesPendientes)
+                            {
+                                this.enviarMensajeP(envP);
+                            }
+                        }
                         break;
                     case CodigoMetodo.DESCONECTARSE:
                         GestionUsuarios.cerrarSesion(com.getUser());
@@ -322,6 +330,22 @@ public class Servidor implements Observer
                     case CodigoMetodo.LISTAR_GRUPOS_CONTACTO:
                         objFlujoS.writeObject(com.getCodigo());
                         objFlujoS.writeObject(GestionGrupoContacto.listarGruposContacto(com.getContacto()));
+                        break;
+                    case CodigoMetodo.INFORME_CONTACTOS:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionContactos.listarContactos(com.getAdmin()));
+                        break;
+                    case CodigoMetodo.INFORME_GRUPOS:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupos.listarGrupos(com.getAdmin()));
+                        break;
+                    case CodigoMetodo.INFORME_CONTACTOS_GRUPO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionGrupoContacto.listarContactosGrupo(com.getGrupo()));
+                        break;
+                    case CodigoMetodo.INFORME_MENSAJES_CONTACTO:
+                        objFlujoS.writeObject(com.getCodigo());
+                        objFlujoS.writeObject(GestionEnviosPrivados.mostrarEnviosP(com.getContacto().getCreador(), com.getContacto().getAlias(), EnvioPrivado.Enum_tipo.MENSAJE));
                         break;
                     default:
                         break;
@@ -404,6 +428,7 @@ public class Servidor implements Observer
                 try {
                     objFlujoS.writeObject(CodigoMetodo.RECIBIR_MENSAJE_P);
                     objFlujoS.writeObject(mensajeP);
+                    GestionEnviosPrivados.modificarEstado(mensajeP, EnvioPrivado.Enum_estado.ENVIADO);
                 } catch (IOException ex) {
                     Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
                 }

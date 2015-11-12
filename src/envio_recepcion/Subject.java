@@ -40,8 +40,12 @@ public abstract class Subject
     }
 
     protected void notifyObservers() {
-        registeredObservers.stream().forEach((observer) -> {
+        /*registeredObservers.stream().forEach((observer) -> {
             observer.update(this);
-        });
+        });*/
+        for(Observer observer : registeredObservers)
+        {
+            observer.update(this);
+        }
     }
 }

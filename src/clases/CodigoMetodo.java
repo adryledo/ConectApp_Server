@@ -28,6 +28,10 @@ public class CodigoMetodo
     public static final int INSERTAR_CONTACTO = 12;
     public static final int MODIFICAR_CONTACTO = 13;
     public static final int ELIMINAR_CONTACTO = 14;
+    public static final int INFORME_CONTACTOS = 15;
+    public static final int INFORME_GRUPOS = 16;
+    public static final int INFORME_CONTACTOS_GRUPO = 17;
+    public static final int INFORME_MENSAJES_CONTACTO = 18;
     
     public static final int LISTAR_GRUPOS = 20;
     public static final int INSERTAR_GRUPO = 22;
