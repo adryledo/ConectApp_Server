@@ -19,16 +19,14 @@ package gestionBD;
 
 import clases.Usuario;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import utilidadesBD.ConexionBD;
 
 /**
  *
- * @author adry
+ * @author Adrian Ledo
  */
 public class GestionUsuarios {
     /**
@@ -41,7 +39,7 @@ public class GestionUsuarios {
             String consulta = "select * from usuario where alias=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, aliasPropietario);
-            System.out.println(stmt.toString());
+            
             return stmt.executeQuery().next();
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,7 +61,7 @@ public class GestionUsuarios {
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, usuario.getAlias());
             stmt.setString(2, usuario.getContrasenha());
-            System.out.println(stmt.toString());
+            
             return stmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
@@ -90,8 +88,8 @@ public class GestionUsuarios {
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, usuario.getAlias());
             stmt.setString(2, usuario.getContrasenha());
-            System.out.println(stmt.toString());
             stmt.executeUpdate();
+            
             return 0;
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);
@@ -102,11 +100,10 @@ public class GestionUsuarios {
     public static int cerrarSesion(Usuario user) {
         try {
             String consulta = "update usuario set dispConectados=dispConectados-1 where"
-                    + " alias=?";// and contrasenha=?
+                    + " alias=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, user.getAlias());
-        //    stmt.setString(2, user.getContrasenha());
-            System.out.println(stmt.toString());
+            
             return stmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(GestionUsuarios.class.getName()).log(Level.SEVERE, null, ex);

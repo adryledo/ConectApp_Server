@@ -19,13 +19,13 @@ package envio_recepcion;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class Subject
 {
-    private CopyOnWriteArrayList<Observer> registeredObservers;
+    private final CopyOnWriteArrayList<Observer> registeredObservers;
 
     public Subject() {
         this.registeredObservers = new CopyOnWriteArrayList<>();
@@ -40,9 +40,6 @@ public abstract class Subject
     }
 
     protected void notifyObservers() {
-        /*registeredObservers.stream().forEach((observer) -> {
-            observer.update(this);
-        });*/
         for(Observer observer : registeredObservers)
         {
             observer.update(this);

@@ -50,7 +50,6 @@ public class GestionEnviosPrivados {
             stmt.setString(5, ep.getTipo().toString());
             stmt.setString(6, EnvioPrivado.Enum_estado.EN_SERVIDOR.toString());
             
-            System.out.println(stmt.toString());
             stmt.executeUpdate();
             return 0;
         }
@@ -70,10 +69,6 @@ public class GestionEnviosPrivados {
     {
         ArrayList<String> listaMensajes = new ArrayList<>();
         try {
-            /*Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta = "select contenido from mensaje where (aliasUsuario like '"+remitente+"' AND aliasContacto like '"+destinatario+"') "
-                    + "OR (aliasUsuario like '"+destinatario+"' AND aliasContacto like '"+remitente+"')";
-            ResultSet rs = stmt.executeQuery(consulta);*/
             String consulta = "select contenido from envio_privado where (remitente=? AND"
                     + " destinatario=?) OR (remitente=? AND destinatario=?)";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);

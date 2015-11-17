@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public class Grupo implements Serializable
 {

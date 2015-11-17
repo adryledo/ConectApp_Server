@@ -24,7 +24,7 @@ import utilidadesBD.ConexionBD;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public class GestionArchivos
 {
@@ -38,7 +38,6 @@ public class GestionArchivos
             stmt.setString(3, a.getFecha());
             stmt.setString(4, a.getNombre());
             
-            System.out.println(consulta);
             stmt.executeUpdate();
             return 0;
         }

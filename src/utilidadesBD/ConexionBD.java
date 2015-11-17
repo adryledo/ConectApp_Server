@@ -23,7 +23,7 @@ import java.sql.SQLException;
 
 /**
  *
- * @author CURSO 1314
+ * @author Adrian Ledo
  */
 public class ConexionBD {
     private static Connection conexion;

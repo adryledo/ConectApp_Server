@@ -19,11 +19,11 @@ package clases;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public class Archivo
 {
-    private String aliasUsuario, aliasContacto, nombre, fecha;
+    private final String aliasUsuario, aliasContacto, nombre, fecha;
 
     public Archivo(String aliasUsuario, String aliasContacto, String nombre, String fecha) {
         this.aliasUsuario = aliasUsuario;

@@ -10,6 +10,12 @@
 <project name="Conectapp_Server" default="default" basedir=".">
     <description>Builds, tests, and runs the project Conectapp_Server.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="-post-jar">
+		<!-- Generar bat que ejecute el jar principal de nuestra aplicacion -->
+        <echo file="${dist.dir}/ConectApp_Server.bat">java -jar ${application.title}.jar</echo>
+		<!-- Copiar el archivo de configuracion si lo tenemos -->
+        <copy file="${src.dir}/configuracion/config.properties" todir="${dist.dir}/configuracion"/>
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

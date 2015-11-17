@@ -19,11 +19,11 @@ package clases;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public class Usuario implements java.io.Serializable
 {
-    private String alias, contrasenha;
+    private final String alias, contrasenha;
 
     public Usuario(String alias, String contrasenha) {
         this.alias = alias;

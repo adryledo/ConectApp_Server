@@ -19,7 +19,6 @@ package gestionBD;
 
 import clases.Contacto;
 import clases.Grupo;
-import clases.GrupoContacto;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,6 +48,7 @@ public class GestionGrupoContacto {
             stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
             stmt.setString(3, c.getAlias());
+            
             return (stmt.executeUpdate()==1 ? 0 : -2);
         } catch (SQLException ex) {
             Logger.getLogger(GestionGrupoContacto.class.getName()).log(Level.SEVERE, null, ex);
@@ -101,7 +101,6 @@ public class GestionGrupoContacto {
             stmt.setString(1, contacto.getCreador());
             stmt.setString(2, contacto.getAlias());
             stmt.execute();
-            System.out.println(stmt.toString());
             ResultSet rs = stmt.getResultSet();
             while(rs.next())
             {
@@ -129,6 +128,7 @@ public class GestionGrupoContacto {
             stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
             stmt.setString(3, c.getAlias());
+            
             return (stmt.executeUpdate()==1 ? 0 : -2);
         } catch (SQLException ex) {
             Logger.getLogger(GestionGrupoContacto.class.getName()).log(Level.SEVERE, null, ex);

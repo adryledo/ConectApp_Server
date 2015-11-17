@@ -36,7 +36,6 @@ public class EnvioPrivado implements Serializable {
     private Enum_estado estado;
 
     public EnvioPrivado() {
-        //this.tipo = Enum_tipo.MENSAJE;
         this.estado = Enum_estado.EN_SERVIDOR;
     }
 

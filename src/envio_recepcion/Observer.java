@@ -19,7 +19,7 @@ package envio_recepcion;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public interface Observer
 {

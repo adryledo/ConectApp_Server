@@ -79,7 +79,6 @@ public class Servidor implements Observer
         arraySocketsArchivo = new ArrayList<>();
         arrayRecepcionesArchivo = new ArrayList<>();
         arrayThreadsArchivo = new ArrayList<>();
-        // TODO - cerrar threads y sockets
     }
     
     private void configurarDirectoriosProperties()
@@ -89,6 +88,15 @@ public class Servidor implements Observer
         caminoAplicacion = fileAplicacion.getAbsolutePath();
         caminoArchivosConfiguracionConEspacios = caminoAplicacion.replaceAll("%20", " ").replaceAll("\\\\", "/");
         caminoArchivosConfiguracionConEspacios = caminoArchivosConfiguracionConEspacios.concat("/../../build/classes");
+    }
+    
+    private void configurarDirectoriosPropertiesProduccion()
+    {
+        fileAplicacion = new File(Servidor.class.getProtectionDomain()
+                .getCodeSource().getLocation().getPath());
+        caminoAplicacion = fileAplicacion.getAbsolutePath();
+        String caminoArchivosConfiguracion = caminoAplicacion.replace(fileAplicacion.getName(), "");
+        caminoArchivosConfiguracionConEspacios = caminoArchivosConfiguracion.replaceAll("%20", " ").replaceAll("\\\\", "/");
     }
 
     private void crearBD(Statement stmt) throws SQLException {
@@ -154,10 +162,6 @@ public class Servidor implements Observer
                 + " CONSTRAINT `FK_remitenteGr` FOREIGN KEY (`remitente`) REFERENCES `usuario` (`alias`) ON DELETE CASCADE ON UPDATE CASCADE,"
                 + " CONSTRAINT `FK_destinatarioGr` FOREIGN KEY (`adminGrupo`,`nombreGrupo`) REFERENCES `grupo` (`admin`, `nombre`) ON DELETE CASCADE ON UPDATE CASCADE)";
         stmt.executeUpdate(consulta);
-    /*    consulta = "insert into "+nombreBD+".usuario (alias, contrasenha) values ('admin','admin')";
-        stmt.executeUpdate(consulta);
-        consulta = "insert into "+nombreBD+".grupo (id, nombre, aliasPropietario) VALUES (0,'administrador','admin')";
-        stmt.executeUpdate(consulta);*/
     }
     
     private void leerProperties()
@@ -167,7 +171,6 @@ public class Servidor implements Observer
         {
             String fichConf = caminoArchivosConfiguracionConEspacios
                     .concat("/configuracion/config.properties");
-//            propiedades.load(this.getClass().getResourceAsStream("/configuracion/config.properties")); // load para programar
             propiedades.load(new FileInputStream(fichConf)); // load para distribuír
             url = propiedades.getProperty("url");
             puerto = propiedades.getProperty("puerto");
@@ -253,11 +256,8 @@ public class Servidor implements Observer
                 {
                     case CodigoMetodo.REGISTRARSE:
                     case CodigoMetodo.INICIAR_SESION:
-                    //    objFlujoS.writeInt(com.getResultado());
                         objFlujoS.writeObject(com.getCodigo());
-                        System.out.println("Servidor: Codigo insertado en flujo");
                         objFlujoS.writeObject(com.getResultado());
-                        System.out.println("Servidor: Resultado insertado en flujo");
                         ArrayList<EnvioPrivado> mensajesPendientes;
                         if((mensajesPendientes=GestionEnviosPrivados.mostrarMensajesPendientes(com.getUser().getAlias())) != null)
                         {
@@ -383,7 +383,8 @@ public class Servidor implements Observer
         RecepcionArchivo recepArchivo;
         Thread thRecepArchivo;
         
-        server.configurarDirectoriosProperties();
+        //server.configurarDirectoriosProperties();
+        server.configurarDirectoriosPropertiesProduccion();
         server.comprobarBD();
         server.conectarBD();
         server.inicializarValoresBD();

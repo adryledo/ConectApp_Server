@@ -17,7 +17,6 @@
 
 package envio_recepcion;
 
-import clases.Archivo;
 import clases.EnvioPrivado;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -26,13 +25,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-//import gestionBD.GestionConexiones;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 
 public class EnvioArchivo extends Subject implements Runnable {
@@ -45,7 +43,6 @@ public class EnvioArchivo extends Subject implements Runnable {
     private int numIter;
     private final String ruta;
     private final EnvioPrivado envPriv;
-//    private ArrayList<String> IPs;
     private final Socket socketArchivo;
 
 
@@ -67,11 +64,6 @@ public class EnvioArchivo extends Subject implements Runnable {
 
     public EnvioArchivo(Socket socket, String rutaFichero, EnvioPrivado envPriv) {
         this.socketArchivo = socket;
-    /*    if((this.IPs = GestionConexiones.getIPs(archivo.getAliasContacto())) == null)
-        {
-            this.fallo = "El contacto no está conectado";
-            notifyObservers();
-        }*/
         this.ruta = rutaFichero;
         this.envPriv = envPriv;
     }
@@ -88,16 +80,12 @@ public class EnvioArchivo extends Subject implements Runnable {
                 this.numIter++;
             }
             this.iniciado = false;
-//            notifyObservers();
-//---- NOTIFICAR A LA VENTANA EL VALOR DE numIter PARA INICIAR LA BARRA DE PROGRESO ---
             try {
                 while (this.numIter > 0) {
                     numBytesLeidos = ficheroOrigen.read(buffer);
                     flujoDatos.write(buffer, 0, numBytesLeidos);
                     this.numIter--;
                     this.iniciado = true;
-//                    notifyObservers();
-//---- NOTIFICAR A LA VENTANA EL VALOR 1 PARA ACTUALIZAR LA BARRA DE PROGRESO ---
                 }
                 ficheroOrigen.close();
             } catch (IOException e) {
@@ -113,37 +101,26 @@ public class EnvioArchivo extends Subject implements Runnable {
     @Override
     public void run() {    
         OutputStream flujoSalida;
-    /*    for(String IP : IPs)
-        {*/
-            this.iniciado = false;
-            this.enviado = false;
-            try {
-            //    Socket socketEnviar = new Socket(IP, 62003);
-                flujoSalida = this.socketArchivo.getOutputStream();
-                flujoObjetos = new ObjectOutputStream(flujoSalida);
-                flujoDatos = new DataOutputStream(flujoSalida);
+        this.iniciado = false;
+        this.enviado = false;
+        try {
+            flujoSalida = this.socketArchivo.getOutputStream();
+            flujoObjetos = new ObjectOutputStream(flujoSalida);
+            flujoDatos = new DataOutputStream(flujoSalida);
 
-                File miFich = new File(ruta);
-                this.tam = miFich.length();
-    //            String soloNombre = ruta.substring(ruta.lastIndexOf('\\') + 1);
-                flujoObjetos.writeLong(this.tam);
-                System.out.printf("Tamaño en cliente"+this.tam);
-    //            flujo.writeInt(soloNombre.length());
-    //            flujo.writeBytes(soloNombre);
-    //            flujo.writeUTF(InetAddress.getLocalHost().getHostAddress());
-                flujoObjetos.writeObject(this.envPriv);
-                System.out.println("EnvioPrivado enviado");
-                envioFich();
-                System.out.println("Fichero enviado!!!");
-                miFich.delete();
-            //    socketEnviar.close();
-            } catch (UnknownHostException e) {
-                System.out.println("Referencia a host no resuelta");
-            } catch (IOException e) {
-                System.out.println("Error en las comunicacines");
-            } catch (SecurityException e) {
-                System.out.println("Comunicación no permitida");
-            }
-    //    }
+            File miFich = new File(ruta);
+            this.tam = miFich.length();
+            flujoObjetos.writeLong(this.tam);
+            flujoObjetos.writeObject(this.envPriv);
+            envioFich();
+            System.out.println("Fichero enviado!!!");
+            miFich.delete();
+        } catch (UnknownHostException e) {
+            System.out.println("Referencia a host no resuelta");
+        } catch (IOException e) {
+            System.out.println("Error en las comunicacines");
+        } catch (SecurityException e) {
+            System.out.println("Comunicación no permitida");
+        }
     }
 }

@@ -19,7 +19,7 @@ package clases;
 
 /**
  *
- * @author Adry
+ * @author Adran Ledo
  */
 public class CodigoMetodo
 {

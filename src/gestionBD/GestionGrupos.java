@@ -49,8 +49,8 @@ public class GestionGrupos
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
-            System.out.println(stmt.toString());
-            stmt.executeUpdate();            
+            stmt.executeUpdate();
+            
             return 0;
         }
         catch(SQLException e)
@@ -76,7 +76,7 @@ public class GestionGrupos
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, g.getAdmin());
             stmt.setString(2, g.getNombre());
-            System.out.println(stmt.toString());
+            
             return (stmt.executeUpdate()==1 ? 0 : -2);
         }
         catch(SQLException e)
@@ -103,7 +103,7 @@ public class GestionGrupos
             stmt.setString(1, nuevoNombre);
             stmt.setString(2, g.getAdmin());
             stmt.setString(3, g.getNombre());
-            System.out.println(stmt.toString());
+            
             return (stmt.executeUpdate()==1 ? 0 : -2);
         }
         catch(SQLException e)
@@ -119,16 +119,6 @@ public class GestionGrupos
         try
         {
             ArrayList<Grupo> resultado = new ArrayList<>();
-        /*    Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta= "select * from grupo order by nombre";
-            System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);
-            while(rs.next())
-            {
-                Grupo g = new Grupo(rs.getString(1), rs.getString(2));
-                resultado.add(g);
-            }
-            return resultado;*/
             String consulta= "select * from grupo order by nombre";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.execute();
@@ -138,7 +128,6 @@ public class GestionGrupos
                 Grupo g = new Grupo(rs.getString(1), rs.getString(2));
                 resultado.add(g);
             }
-            System.out.println(stmt.toString());
             return resultado;
         }
         catch(SQLException e)
@@ -159,11 +148,6 @@ public class GestionGrupos
         try
         {
             ArrayList<Grupo> resultado = new ArrayList();
-        /*    Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta= "select * from grupo "
-                    + "where admin='"+admin+"' order by nombre";
-            System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);*/
             String consulta = "select * from grupo where admin=? order by nombre";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, admin);
@@ -174,7 +158,6 @@ public class GestionGrupos
                 Grupo g = new Grupo( rs.getString(1), rs.getString(2));
                 resultado.add(g);
             }
-            System.out.println(stmt.toString());
             return resultado;
         }
         catch(SQLException e)

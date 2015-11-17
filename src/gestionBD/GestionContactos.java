@@ -26,7 +26,7 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 /**
  *
- * @author ADRIANLC
+ * @author Adrian Ledo
  */
 public class GestionContactos
 {
@@ -41,15 +41,10 @@ public class GestionContactos
      */
     public static int insertarContacto(Contacto c)
     {
-        //if(existeContacto(c.getCreador(), c.getAlias()))
         if(existeContacto(c))
         {
             return -2;
         }
-        /*if(esPropietario(c.getCreador(), c.getAlias()))
-        {
-            return -3;
-        }*/
         if(!GestionUsuarios.existeUsuario(c.getAlias()))
         {
             return -4;
@@ -68,7 +63,6 @@ public class GestionContactos
             stmt.setString(5, c.getDireccion());
             stmt.setString(6, c.getEmail());
             
-            System.out.println(stmt.toString());
             stmt.executeUpdate();
             return 0;
         }
@@ -89,17 +83,11 @@ public class GestionContactos
     {
         try
         {
-        /*    Statement stmt=ConexionBD.getConexion().createStatement();
-            String consulta= "delete from contacto where creador='"+c.getCreador()
-                    +"' AND alias='"+c.getAlias()+"'";
-            System.out.println(consulta);
-            stmt.executeUpdate(consulta);            
-            return 0;*/
             String consulta= "delete from contacto where creador=? AND alias=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, c.getCreador());
             stmt.setString(2, c.getAlias());
-            System.out.println(stmt.toString());
+            
             return (stmt.executeUpdate()==1 ? 0 : -3);
         }
         catch(SQLException e)
@@ -131,7 +119,6 @@ public class GestionContactos
             stmt.setString(5, c.getCreador());
             stmt.setString(7, c.getAlias());
             
-            System.out.println(stmt.toString());
             return (stmt.executeUpdate()==1 ? 0 : -2);
         }
         catch(SQLException e)
@@ -153,11 +140,6 @@ public class GestionContactos
         try
         {
             ArrayList<Contacto> resultado = new ArrayList();
-        /*    Statement stmt = ConexionBD.getConexion().createStatement();
-            //String consulta= "select * from contacto order by aliasContacto";
-            String consulta = "SELECT * FROM contacto where creador like  '"+creador+"')";
-            System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);*/
             String consulta = "SELECT * FROM contacto where creador=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, creador);
@@ -168,7 +150,7 @@ public class GestionContactos
                 Contacto c = new Contacto(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
                 resultado.add(c);
             }
-            System.out.println(stmt.toString());
+            
             return resultado;
         }
         catch(SQLException e)
@@ -178,69 +160,14 @@ public class GestionContactos
         }
     }
     
-    /*public static ArrayList<Contacto> listarContactosGrupo(int idGrupo)
-    {
-        try
-        {
-            ArrayList<Contacto> resultado = new ArrayList();
-            Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta= "select * from contacto where idGrupo like "+idGrupo+"";
-            System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);
-            while(rs.next())
-            {
-                Contacto c = new Contacto(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6));
-                resultado.add(c);
-            }
-            return resultado;
-        }
-        catch(SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
-    
-    /*public static Contacto recuperarContacto(String ip)
-    {
-        try
-        {
-            Contacto resultado = null;
-            Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta= "select * from contacto where aliasContacto in (select aliasUsuario from conexion where ip like '"+ip+"') ";
-            System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);
-            if(rs.next())
-            {
-                resultado = new Contacto(rs.getInt(1), rs.getString(2), rs.getString(3));
-            }
-            return resultado;
-        }
-        catch(SQLException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }*/
-
     private static boolean existeContacto(Contacto c) {
         try
         {
-        /*    Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta= "select * from contacto "
-                    + "where creador='"+c.getCreador()+"' AND alias='"+c.getAlias()+"'";
-            System.out.println(consulta);
-            ResultSet rs = stmt.executeQuery(consulta);
-            if(rs.next())
-            {
-                return true;
-            }
-            return false;*/
             String consulta= "select * from contacto where creador=? AND alias=?";
             PreparedStatement stmt = ConexionBD.getConexion().prepareStatement(consulta);
             stmt.setString(1, c.getCreador());
             stmt.setString(2, c.getAlias());
-            System.out.println(stmt.toString());
+            
             return stmt.executeQuery().next();
         }
         catch(SQLException e)
@@ -249,38 +176,6 @@ public class GestionContactos
             return true;
         }
     }
-/*
-    private static boolean esPropietario(int idGrupo, String aliasContacto) {
-        try {
-            Statement stmt = ConexionBD.getConexion().createStatement();
-            String consulta = "select * from grupo where id like "+idGrupo+" and aliasPropietario like '"+aliasContacto+"'";
-            ResultSet rs = stmt.executeQuery(consulta);
-            return rs.next();
-        } catch (SQLException ex) {
-            Logger.getLogger(GestionContactos.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return true;
-    }*/
-
-/*    public static int eliminarContactosGrupo(Grupo grupo) {
-        try
-        {
-            Statement stmt=ConexionBD.getConexion().createStatement();
-            String consulta= "delete from contacto where idGrupo="+grupo.getId();
-            System.out.println(consulta);
-            stmt.executeUpdate(consulta);            
-            return 0;
-        }
-        catch(SQLException e)
-        {
-            e.printStackTrace();
-            if(e.getErrorCode()==1451)
-            {
-                return -2; //error por integridad referencial
-            }
-            return -1; //error generico
-        }
-    }*/
 }
 
 
